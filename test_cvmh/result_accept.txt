@@ -1,0 +1,9 @@
+./accepttest
+Test: vx executable w/ large grid
+PASS
+Test: vx_lite executable w/ large grid in emulation mode
+PASS
+Test: vx_lite executable w/ large grid in depth mode
+PASS
+Test: vx_lite executable w/ large grid in elev offset mode
+PASS

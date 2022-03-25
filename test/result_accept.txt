@@ -1,0 +1,13 @@
+./run_accept
+Test: model w/ large grid in elevation mode
+TODO
+Test: model w/ large grid in depth mode
+PASS
+Test: model w/ large grid in offset mode
+PASS
+Test: vx_lite_cvmhlabn executable w/ large grid in elevation mode
+TODO
+Test: vx_lite_cvmhlabn executable w/ large grid in depth mode
+PASS
+Test: vx_lite_cvmhlabn executable w/ large grid in elev offset mode
+PASS
