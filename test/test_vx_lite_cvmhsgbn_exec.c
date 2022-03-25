@@ -1,4 +1,4 @@
-**  
+/**  
    test_vx_lite_cvmhsgbn_exec.c
 
    invokes src/run_vx_lite_cvmhsgbn.sh/vx_lite_cvmhsgbn
