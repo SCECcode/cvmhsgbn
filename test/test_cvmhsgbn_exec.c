@@ -1,7 +1,7 @@
 /**
-   test_cvmhlabn_exec.c
+   test_cvmhsgbn_exec.c
 
-   uses cvmhlabn's model api,
+   uses cvmhsgbn's model api,
        model_init, model_setparam, model_query, model_finalize
 **/
 
@@ -12,10 +12,10 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <assert.h>
-#include "cvmhlabn.h"
+#include "cvmhsgbn.h"
 #include "unittest_defs.h"
 #include "test_helper.h"
-#include "test_cvmhlabn_exec.h"
+#include "test_cvmhsgbn_exec.h"
 #include "ucvm_model_dtypes.h"
 
 
@@ -25,10 +25,10 @@ int test_setup()
 
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+    if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
       return(1);
     }
-  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+  } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
     return(1);
   }
 
@@ -47,10 +47,10 @@ int test_setparam()
 // Initialize the model, try to use Use UCVM_INSTALL_PATH
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+    if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
       return(1);
     }
-  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+  } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
     return(1);
   }
 
@@ -71,16 +71,16 @@ int test_query_by_depth()
 {
   printf("Test: model_query() by depth\n");
 
-  cvmhlabn_point_t pt;
-  cvmhlabn_properties_t ret;
+  cvmhsgbn_point_t pt;
+  cvmhsgbn_properties_t ret;
 
 // Initialize the model, try to use Use UCVM_INSTALL_PATH
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+    if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
       return(1);
     }
-  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+  } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
     return(1);
   }
 
@@ -117,16 +117,16 @@ int test_query_by_elevation()
 {
   printf("Test: model_query() by elevation\n");
 
-  cvmhlabn_point_t pt;
-  cvmhlabn_properties_t ret;
+  cvmhsgbn_point_t pt;
+  cvmhsgbn_properties_t ret;
 
 // Initialize the model, try to use Use UCVM_INSTALL_PATH
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+    if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
       return(1);
     }
-  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+  } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
     return(1);
   }
 
@@ -168,8 +168,8 @@ int test_query_points_by_elevation()
   printf("Test: model_query() points by elevation\n");
 
   FILE  *infp, *outfp;
-  cvmhlabn_point_t pt;
-  cvmhlabn_properties_t ret;
+  cvmhsgbn_point_t pt;
+  cvmhsgbn_properties_t ret;
   double elev;
   double surf;
 
@@ -207,10 +207,10 @@ int test_query_points_by_elevation()
 
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+    if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
       return(1);
     }
-  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+  } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
     return(1);
   }
 
@@ -252,7 +252,7 @@ int test_query_points_by_elevation()
   return(0);
 }
 
-int suite_cvmhlabn_exec(const char *xmldir)
+int suite_cvmhsgbn_exec(const char *xmldir)
 {
   suite_t suite;
   char logfile[256];

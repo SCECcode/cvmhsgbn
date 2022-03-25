@@ -78,7 +78,7 @@ int get_test_points(double *x, double *y, double *z,
   z[8] = -1000.0;
   coord_types[8] = VX_COORD_GEO;
 
-// cvmhlabn
+// cvmhsgbn
   x[9] = 421000.0;
   y[9] = 3712000.0;
   z[9] = -2000.0;
@@ -191,21 +191,21 @@ int save_depth_test_points(const char* filename)
 }
 
 /*************************************************************************/
-int runCVMHLABN(const char *bindir, const char *cvmdir, 
+int runCVMHSGBN(const char *bindir, const char *cvmdir, 
 	  const char *infile, const char *outfile, int mode)
 {
-  cvmhlabn_point_t pt;
-  cvmhlabn_properties_t ret;
+  cvmhsgbn_point_t pt;
+  cvmhsgbn_properties_t ret;
 
   FILE *infp, *outfp;
   char line[1000];
 
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
-    if (test_assert_int(model_init(envstr, "cvmhlabn"), 0) != 0) {
+    if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
       return(1);
     }
-  } else if (test_assert_int(model_init("..", "cvmhlabn"), 0) != 0) {
+  } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
     return(1);
   }
 
@@ -257,14 +257,14 @@ int runCVMHLABN(const char *bindir, const char *cvmdir,
   return(0);
 }
 
-int runVXCVMHLABN(const char *bindir, const char *cvmdir, 
+int runVXCVMHSGBN(const char *bindir, const char *cvmdir, 
 	  const char *infile, const char *outfile, int mode)
 {
   char currentdir[1280];
   char runpath[1280];
   char flags[1280]="";
 
-  sprintf(runpath, "%s/run_vx_cvmhlabn.sh", bindir);
+  sprintf(runpath, "%s/run_vx_cvmhsgbn.sh", bindir);
 
   switch (mode) {
     case MODE_ELEVATION:
@@ -292,7 +292,7 @@ int runVXCVMHLABN(const char *bindir, const char *cvmdir,
   } else if (pid == 0) {
     /* Change dir to cvmdir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_cvmhlabn.sh\n");
+      printf("FAIL: Error changing dir in run_vx_cvmhsgbn.sh\n");
       return(1);
     }
 
@@ -320,7 +320,7 @@ int runVXCVMHLABN(const char *bindir, const char *cvmdir,
 }
 
 
-int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir, 
+int runVXLiteCVMHSGBN(const char *bindir, const char *cvmdir, 
 	      const char *infile, const char *outfile,
 	      int mode)
 {
@@ -329,7 +329,7 @@ int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir,
 
   char runpath[1280];
 
-  sprintf(runpath, "./run_vx_lite_cvmhlabn.sh");
+  sprintf(runpath, "./run_vx_lite_cvmhsgbn.sh");
 
   sprintf(flags, "-m %s ", cvmdir);
 
@@ -361,7 +361,7 @@ int runVXLiteCVMHLABN(const char *bindir, const char *cvmdir,
 
     /* Change dir to bindir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_lite_cvmhlabn.sh\n");
+      printf("FAIL: Error changing dir in run_vx_lite_cvmhsgbn.sh\n");
       return(1);
     }
 

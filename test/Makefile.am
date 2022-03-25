@@ -5,7 +5,7 @@ bin_PROGRAMS = unittest accepttest
 # General compiler/linker flags
 AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
         -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 ${CFLAGS} -I../src
-AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhlabn -L../gctpc/source -lgeo -lm
+AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhsgbn -L../gctpc/source -lgeo -lm
 
 # Dist sources
 unittest_SOURCES = *.c *.h
@@ -22,7 +22,7 @@ all: $(bin_PROGRAMS)
 ############################################
 
 unittest: unittest.o unittest_defs.o test_helper.o \
-	test_vx_lite_cvmhlabn_exec.o test_vx_cvmhlabn_exec.o test_cvmhlabn_exec.o
+	test_vx_lite_cvmhsgbn_exec.o test_vx_cvmhsgbn_exec.o test_cvmhsgbn_exec.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
 run_unit : unittest
