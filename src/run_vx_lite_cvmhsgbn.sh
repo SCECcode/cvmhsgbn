@@ -3,7 +3,7 @@
 # Process options
 FLAGS=""
 
-# Pass along any arguments to vx_lite_cvmhlabn
+# Pass along any arguments to vx_lite_cvmhsgbn
 while getopts 'm:dhsz:' OPTION
 do
   if [ "$OPTARG" != "" ]; then
@@ -24,8 +24,8 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 IN_FILE=$1
 OUT_FILE=$2
 
-echo "${SCRIPT_DIR}/vx_lite_cvmhlabn ${FLAGS} < ${IN_FILE} > ${OUT_FILE}" >> run.log
-${SCRIPT_DIR}/vx_lite_cvmhlabn ${FLAGS} < ${IN_FILE} > ${OUT_FILE}
+echo "${SCRIPT_DIR}/vx_lite_cvmhsgbn ${FLAGS} < ${IN_FILE} > ${OUT_FILE}" >> run.log
+${SCRIPT_DIR}/vx_lite_cvmhsgbn ${FLAGS} < ${IN_FILE} > ${OUT_FILE}
 
 if [ $? -ne 0 ]; then
     exit 1

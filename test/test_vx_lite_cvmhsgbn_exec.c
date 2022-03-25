@@ -1,7 +1,7 @@
-/**  
-   test_vx_lite_cvmhlabn_exec.c
+**  
+   test_vx_lite_cvmhsgbn_exec.c
 
-   invokes src/run_vx_lite_cvmhlabn.sh/vx_lite_cvmhlabn
+   invokes src/run_vx_lite_cvmhsgbn.sh/vx_lite_cvmhsgbn
      which uses vx_lite api,
        vx_setup, vx_setzmode, vx_getcoord, vx_cleanup
 **/
@@ -17,7 +17,7 @@
 #include "vx_sub.h"
 #include "unittest_defs.h"
 #include "test_helper.h"
-#include "test_vx_lite_cvmhlabn_exec.h"
+#include "test_vx_lite_cvmhsgbn_exec.h"
 
 int VX_LITE_TESTS=3;
 
@@ -28,24 +28,24 @@ int test_vx_lite_cvhmlabn_points_elevation()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable with elevation option\n");
+  printf("Test: vx_lite_cvmhsgbn executable with elevation option\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test-elev.in");
   sprintf(outfile, "%s/%s", currentdir, 
-	  "test-10-point-vx-lite-cvmhlabn-extract-elev.out");
+	  "test-10-point-vx-lite-cvmhsgbn-extract-elev.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-10-point-vx-lite-cvmhlabn-extract-elev.ref");
+	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-elev.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
     return(1);
   }
 
-  if (test_assert_int(runVXLiteCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
+  if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_ELEVATION), 0) != 0) {
-    printf("vx_lite_cvmhlabn failure\n");
+    printf("vx_lite_cvmhsgbn failure\n");
     return(1);
   }
 
@@ -69,25 +69,25 @@ int test_vx_lite_cvhmlabn_points_depth()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable with depth option\n");
+  printf("Test: vx_lite_cvmhsgbn executable with depth option\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test-depth.in");
   sprintf(outfile, "%s/%s", currentdir, 
-	  "test-10-point-vx-lite-cvmhlabn-extract-depth.out");
+	  "test-10-point-vx-lite-cvmhsgbn-extract-depth.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-10-point-vx-lite-cvmhlabn-extract-depth.ref");
+	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-depth.ref");
 
   if (test_assert_int(save_depth_test_points(infile), 0) != 0) {
     printf("save test point failure\n");
     return(1);
   }
 
-  if (test_assert_int(runVXLiteCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
+  if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_DEPTH), 0) != 0) {
-    printf("vx_lite_cvmhlabn failure\n");
+    printf("vx_lite_cvmhsgbn failure\n");
     return(1);
   }  
 
@@ -110,24 +110,24 @@ int test_vx_lite_cvhmlabn_points_offset()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_lite_cvmhlabn executable with offset(none) option\n");
+  printf("Test: vx_lite_cvmhsgbn executable with offset(none) option\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test-offset.in");
   sprintf(outfile, "%s/%s", currentdir, 
-	  "test-10-point-vx-lite-cvmhlabn-extract-offset.out");
+	  "test-10-point-vx-lite-cvmhsgbn-extract-offset.out");
   sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-10-point-vx-lite-cvmhlabn-extract-offset.ref");
+	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-offset.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
     return(1);
   }
 
-  if (test_assert_int(runVXLiteCVMHLABN(BIN_DIR, MODEL_DIR, infile, outfile, 
+  if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_NONE), 0) != 0) {
-    printf("vx_lite_cvmhlabn failure\n");
+    printf("vx_lite_cvmhsgbn failure\n");
     return(1);
   }
 
@@ -143,7 +143,7 @@ int test_vx_lite_cvhmlabn_points_offset()
 }
 
 
-int suite_vx_lite_cvmhlabn_exec(const char *xmldir)
+int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
 {
   suite_t suite;
   char logfile[1280];

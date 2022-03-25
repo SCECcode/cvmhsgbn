@@ -1,10 +1,10 @@
 /*
- * @file vx_cvmhlabn.c
- * @brief Bootstraps the test framework for the CVMHLABN library.
+ * @file vx_cvmhsgbn.c
+ * @brief Bootstraps the test framework for the CVMHSGBN library.
  * @author - SCEC
  * @version 1.0
  *
- * Tests the CVMHLABN library by loading it and executing the code as
+ * Tests the CVMHSGBN library by loading it and executing the code as
  * UCVM would.
  *
  */
@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "cvmhlabn.h"
+#include "cvmhsgbn.h"
 
-extern int cvmhlabn_debug;
+extern int cvmhsgbn_debug;
 
 int _compare_double(double f1, double f2) {
   double precision = 0.00001;
@@ -27,11 +27,11 @@ int _compare_double(double f1, double f2) {
 
 /* Usage function */
 void usage() {
-  printf("     vx_cvmhlabn - (c) SCEC\n");
+  printf("     vx_cvmhsgbn - (c) SCEC\n");
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
   printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_cvmhlabn [-d] [-z dep/elev/off] < file.in\n\n");
+  printf("\tusage: vx_cvmhsgbn [-d] [-z dep/elev/off] < file.in\n\n");
   printf("Flags:\n");
   printf("\t-d enable debug/verbose mode\n\n");
   printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
@@ -44,7 +44,7 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 /**
- * Initializes and CVMHLABN in standalone mode with ucvm plugin 
+ * Initializes and CVMHSGBN in standalone mode with ucvm plugin 
  * api.
  *
  * @param argc The number of arguments.
@@ -54,8 +54,8 @@ extern int optind, opterr, optopt;
 int main(int argc, char* const argv[]) {
 
 	// Declare the structures.
-	cvmhlabn_point_t pt;
-	cvmhlabn_properties_t ret;
+	cvmhsgbn_point_t pt;
+	cvmhsgbn_properties_t ret;
         int zmode=UCVM_COORD_GEO_DEPTH;
         int rc;
         int opt;
@@ -91,13 +91,13 @@ int main(int argc, char* const argv[]) {
         // try to use Use UCVM_INSTALL_PATH
         char *envstr=getenv("UCVM_INSTALL_PATH");
         if(envstr != NULL) {
-	   assert(cvmhlabn_init(envstr, "cvmhlabn") == 0);
+	   assert(cvmhsgbn_init(envstr, "cvmhsgbn") == 0);
            } else {
-	     assert(cvmhlabn_init("..", "cvmhlabn") == 0);
+	     assert(cvmhsgbn_init("..", "cvmhsgbn") == 0);
         }
 	printf("Loaded the model successfully.\n");
 
-        assert(cvmhlabn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
+        assert(cvmhsgbn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
 	printf("Set model zmode successfully.\n");
 
         char line[2001];
@@ -106,7 +106,7 @@ int main(int argc, char* const argv[]) {
            if (sscanf(line,"%lf %lf %lf",
                &pt.longitude,&pt.latitude,&pt.depth) == 3) {
 
-// using cvmhlabn -- everything is depth so need to convert here..
+// using cvmhsgbn -- everything is depth so need to convert here..
               if(zmode == UCVM_COORD_GEO_ELEV ) {
                 double elev=pt.depth;
                 float surface;
@@ -124,7 +124,7 @@ int main(int argc, char* const argv[]) {
                 pt.depth = surface - elev;
               }
 
-	      rc=cvmhlabn_query(&pt, &ret, 1);
+	      rc=cvmhsgbn_query(&pt, &ret, 1);
               if(rc == 0) {
                 printf("vs : %lf vp: %lf rho: %lf\n",ret.vs, ret.vp, ret.rho);
                 } else {
@@ -135,7 +135,7 @@ int main(int argc, char* const argv[]) {
            }
         }
 
-	assert(cvmhlabn_finalize() == 0);
+	assert(cvmhsgbn_finalize() == 0);
 	printf("Model closed successfully.\n");
 
 	return 0;

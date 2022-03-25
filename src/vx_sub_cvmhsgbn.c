@@ -17,7 +17,7 @@
 #include "cproj.h"
 #include "utils.h"
 #include "vx_io.h"
-#include "vx_sub_cvmhlabn.h"
+#include "vx_sub_cvmhsgbn.h"
 
 /* Smoothing parameters for SCEC 1D */
 #define SCEC_SMOOTH_DIST 50.0 // km
@@ -27,7 +27,7 @@
 #define MAX_ITER_ELEV 4
 
 int _debug=0;
-int cvmhlabn_debug=0;
+int cvmhsgbn_debug=0;
 
 
 /* Function declarations */
@@ -78,7 +78,7 @@ int vx_setup(const char *data_dir)
   sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
   
   char HR_PAR[CMLEN];
-  sprintf(HR_PAR, "%s/CVMHB-Los-Angeles-Basin.vo", data_dir);
+  sprintf(HR_PAR, "%s/CVMHB-San-Gabriel-Basin.vo", data_dir);
   
   char CM_PAR[CMLEN];
   sprintf(CM_PAR, "%s/CVM_CM.vo", data_dir);
@@ -434,7 +434,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     if (enhanced == True) {
       elev = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
-      if(cvmhlabn_debug) { fprintf(stderr," surface -- %lf\n", surface); }
+      if(cvmhsgbn_debug) { fprintf(stderr," surface -- %lf\n", surface); }
       if (surface < -90000.0) {
 	return(1);
       }
@@ -456,7 +456,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       depth = surface - entry->coor_utm[2];
     }
 
-    if(cvmhlabn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
+    if(cvmhsgbn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
                                                         entry->coor[0], entry->coor[1], entry->coor[2]); }
     if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
@@ -484,7 +484,7 @@ if(_debug) { fprintf(stderr," entry_vel_cell, %f %f %f\n", entry->vel_cell[0], e
 	memcpy(&(entry->vp), &hrbuffer[j], p2.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
 	entry->data_src = VX_SRC_HR;
-if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+if(cvmhsgbn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
         do_bkg = True;
@@ -501,7 +501,7 @@ if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(
     }
   }
 
-  if(cvmhlabn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f) rho(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs, entry->rho); }
+  if(cvmhsgbn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f) rho(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs, entry->rho); }
 
   if(0) {
     fprintf(stderr,"KEEP warnings down: topo_gap(%lf) zt(%lf) depth(%lf)\n",topo_gap,zt,depth);
