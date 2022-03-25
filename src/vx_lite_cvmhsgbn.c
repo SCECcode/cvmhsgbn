@@ -1,6 +1,6 @@
 /** 
-    vx_lite_cvmhlabn - A command line program to extract velocity values
-    from CVM-HLABN. Accepts Geographic Coordinates or UTM Zone 11 
+    vx_lite_cvmhsgbn - A command line program to extract velocity values
+    from CVM-H SGABN. Accepts Geographic Coordinates or UTM Zone 11 
     coordinates.
 
     10/2011: MHS: Initial implementation derived from cvmh vx_lite.c
@@ -15,17 +15,17 @@
 #include <math.h>
 #include <getopt.h>
 #include "params.h"
-#include "vx_sub_cvmhlabn.h"
+#include "vx_sub_cvmhsgbn.h"
 
-extern int cvmhlabn_debug;
+extern int cvmhsgbn_debug;
 
 /* Usage function */
 void usage() {
-  printf("     vx_lite_cvmhlabn - (c) Harvard University, SCEC\n");
+  printf("     vx_lite_cvmhsgbn - (c) Harvard University, SCEC\n");
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
   printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_lite_cvmhlabn [-d] [-m dir] [-z dep/elev/off] < file.in\n\n");
+  printf("\tusage: vx_lite_cvmhsgbn [-d] [-m dir] [-z dep/elev/off] < file.in\n\n");
   printf("Flags:\n");
   printf("\t-d enable debug/verbose mode.\n");
   printf("\t-m directory containing model files (default is '.').\n");
@@ -53,7 +53,7 @@ int main (int argc, char *argv[])
   while ((opt = getopt(argc, argv, "dm:z:h")) != -1) {
     switch (opt) {
     case 'd': // enable debug mode
-      cvmhlabn_debug=1;
+      cvmhsgbn_debug=1;
       break;
     case 'm':
       strcpy(modeldir, optarg);

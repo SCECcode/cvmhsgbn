@@ -1,13 +1,13 @@
-#ifndef CVMHLABN_H
-#define CVMHLABN_H
+#ifndef CVMHSGBN_H
+#define CVMHSGBN_H
 
 /**
- * @file cvmhlabn.h
- * @brief Main header file for CVMHLABN library.
+ * @file cvmhsgbn.h
+ * @brief Main header file for CVMHSGBN library.
  * @author - SCEC 
  * @version 1.0
  *
- * Delivers CVMH Los Angelese Basin Velocity Model
+ * Delivers CVMH San Gabriel Basin Velocity Model
  *
  */
 
@@ -32,17 +32,17 @@
 
 // Structures
 /** Defines a point (latitude, longitude, and depth) in WGS84 format */
-typedef struct cvmhlabn_point_t {
+typedef struct cvmhsgbn_point_t {
 	/** Longitude member of the point */
 	double longitude;
 	/** Latitude member of the point */
 	double latitude;
 	/** Depth member of the point */
 	double depth;
-} cvmhlabn_point_t;
+} cvmhsgbn_point_t;
 
 /** Defines the material properties this model will retrieve. */
-typedef struct cvmhlabn_properties_t {
+typedef struct cvmhsgbn_properties_t {
 	/** P-wave velocity in meters per second */
 	double vp;
 	/** S-wave velocity in meters per second */
@@ -53,45 +53,45 @@ typedef struct cvmhlabn_properties_t {
         double qp;
         /** NOT USED from basic_property_t */
         double qs;
-} cvmhlabn_properties_t;
+} cvmhsgbn_properties_t;
 
-/** The CVMHLABN configuration structure. */
-typedef struct cvmhlabn_configuration_t {
+/** The CVMHSGBN configuration structure. */
+typedef struct cvmhsgbn_configuration_t {
 	/** The zone of UTM projection */
 	int utm_zone;
 	/** The model directory */
 	char model_dir[1000];
 
-} cvmhlabn_configuration_t;
+} cvmhsgbn_configuration_t;
 
 /** The model structure which points to available portions of the model. */
-typedef struct cvmhlabn_model_t {
+typedef struct cvmhsgbn_model_t {
 	/** A pointer to the Vp data either in memory or disk. Null if does not exist. */
 	void *vp;
 	/** Vp status: 0 = not found, 1 = found and not in memory, 2 = found and in memory */
 	int vp_status;
-} cvmhlabn_model_t;
+} cvmhsgbn_model_t;
 
 // Constants
 /** The version of the model. */
-extern const char *cvmhlabn_version_string;
+extern const char *cvmhsgbn_version_string;
 
 // Variables
 /** Set to 1 when the model is ready for query. */
-extern int cvmhlabn_is_initialized;
+extern int cvmhsgbn_is_initialized;
 
 /** Location of the binary data files. */
-extern char cvmhlabn_data_directory[2000];
+extern char cvmhsgbn_data_directory[2000];
 
 /** Configuration parameters. */
-extern cvmhlabn_configuration_t *cvmhlabn_configuration;
+extern cvmhsgbn_configuration_t *cvmhsgbn_configuration;
 /** Holds pointers to the velocity model data OR indicates it can be read from file. */
-extern cvmhlabn_model_t *cvmhlabn_velocity_model;
+extern cvmhsgbn_model_t *cvmhsgbn_velocity_model;
 
 /** The height of this model's region, in meters. */
-extern double cvmhlabn_total_height_m;
+extern double cvmhsgbn_total_height_m;
 /** The width of this model's region, in meters. */
-extern double cvmhlabn_total_width_m;
+extern double cvmhsgbn_total_width_m;
 
 // UCVM API Required Functions
 
@@ -104,29 +104,29 @@ int model_finalize();
 /** Returns version information */
 int model_version(char *ver, int len);
 /** Queries the model */
-int model_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
+int model_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int numpts);
 /** Setparam */
 int model_setparam(int, int, int);
 
 #endif
 
-// CVMHLABN Related Functions
+// CVMHSGBN Related Functions
 
 /** Initializes the model */
-int cvmhlabn_init(const char *dir, const char *label);
+int cvmhsgbn_init(const char *dir, const char *label);
 /** Cleans up the model (frees memory, etc.) */
-int cvmhlabn_finalize();
+int cvmhsgbn_finalize();
 /** Returns version information */
-int cvmhlabn_version(char *ver, int len);
+int cvmhsgbn_version(char *ver, int len);
 /** Queries the model */
-int cvmhlabn_query(cvmhlabn_point_t *points, cvmhlabn_properties_t *data, int numpts);
+int cvmhsgbn_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int numpts);
 /** Setparam*/
-int cvmhlabn_setparam(int, int, ...);
+int cvmhsgbn_setparam(int, int, ...);
 
 // Non-UCVM Helper Functions
 /** Reads the configuration file. */
-int cvmhlabn_read_configuration(char *file, cvmhlabn_configuration_t *config);
-void cvmhlabn_print_error(char *err);
-int cvmhlabn_setzmode(char* z);
+int cvmhsgbn_read_configuration(char *file, cvmhsgbn_configuration_t *config);
+void cvmhsgbn_print_error(char *err);
+int cvmhsgbn_setzmode(char* z);
 
 #endif
