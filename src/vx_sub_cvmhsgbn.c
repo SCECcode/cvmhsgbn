@@ -26,7 +26,7 @@
 #define ELEV_EPSILON 0.01
 #define MAX_ITER_ELEV 4
 
-int _debug=1;
+int _debug=0;
 int cvmhsgbn_debug=0;
 
 
