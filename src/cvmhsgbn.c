@@ -192,20 +192,15 @@ int cvmhsgbn_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int nu
       int rc=vx_getcoord(&entry);
 
       if(cvmhsgbn_ucvm_debug) {
-        printf("%14.6f %15.6f %9.2f \n",
+        printf("||lonlat(%.6f %.6f %.4f)\n",
                entry.coor[0], entry.coor[1], entry.coor[2]);
         /* AP: Let's provide the computed UTM coordinates as well */
-        printf("%10.2f %11.2f ", entry.coor_utm[0], entry.coor_utm[1]);
-
-        printf("%10.2f %11.2f ", entry.elev_cell[0], entry.elev_cell[1]);
-        printf("%9.2f ", entry.topo);
-        printf("%9.2f ", entry.mtop);
-        printf("%9.2f ", entry.base);
-        printf("%9.2f ", entry.moho);
-        printf("%s %10.2f %11.2f %9.2f ", VX_SRC_NAMES[entry.data_src],
-               entry.vel_cell[0], entry.vel_cell[1], entry.vel_cell[2]);
-        printf("%9.2f %9.2f %9.2f ", entry.provenance, entry.vp, entry.vs);
-        printf("%9.2f\n", entry.rho);
+        printf("||utm(%.2f %.2f)\n", entry.coor_utm[0], entry.coor_utm[1]);
+        printf("||elev_cell(%10.2f %11.2f)\n", entry.elev_cell[0], entry.elev_cell[1]);
+        printf("||topo(%.2f) mtop(%.2f) base(%.2f) moho(%.2f)\n", entry.topo, entry.mtop, entry.base, entry.moho);
+        printf("||src(%s) vel_cell(%.2f %.2f %.2f) provenance(%.2f)\n", VX_SRC_NAMES[entry.data_src], 
+            entry.vel_cell[0], entry.vel_cell[1], entry.vel_cell[2], entry.provenance);
+        printf("||vp(%.4f) vs(%.4f) rho(%.4f)\n", entry.vp, entry.vs, entry.rho);
       }
 
       if(cvmhsgbn_ucvm_debug) {

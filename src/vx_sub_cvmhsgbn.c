@@ -7,6 +7,8 @@
 07/2011: PES: Extracted io into separate module from vx_sub.c
 **/
 
+int MEI =1 ;
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -107,11 +109,12 @@ int vx_setup(const char *data_dir)
     fprintf(stderr,"    hr_a.U %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
     fprintf(stderr,"    hr_a.V %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
     fprintf(stderr,"    hr_a.W %.0f %.0f %.0f\n", hr_a.W[0],hr_a.W[1],hr_a.W[2]);
-    fprintf(stderr,"    hr_a.MAX %.0f %.0f %.0f\n", hr_a.MAX[0],hr_a.MAX[1],hr_a.MAX[2]);
-    fprintf(stderr,"    hr_a.MIN %.0f %.0f %.0f\n", hr_a.MIN[0],hr_a.MIN[1],hr_a.MIN[2]);
+    fprintf(stderr,"    hr_a.MAX %f %f %f\n", hr_a.MAX[0],hr_a.MAX[1],hr_a.MAX[2]);
+    fprintf(stderr,"    hr_a.MIN %f %f %f\n", hr_a.MIN[0],hr_a.MIN[1],hr_a.MIN[2]);
+    fprintf(stderr,"    hr_a.N %d %d %d\n", hr_a.N[0],hr_a.N[1],hr_a.N[2]);
   }
 
-  if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
+  if( MEI || (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
 /* origin */
       float origin0hr= hr_a.O[0] + hr_a.U[0] * hr_a.MIN[0];
       float origin1hr= hr_a.O[1] + hr_a.V[1] * hr_a.MIN[1];
@@ -140,10 +143,10 @@ int vx_setup(const char *data_dir)
 
       if(_debug) {
         fprintf(stderr,">>>Info: newly  calculated HR ------\n");
-        fprintf(stderr," origin %.0f %.0f %.0f\n", origin0hr, origin1hr, origin2hr);
-        fprintf(stderr," umax %.0f %.0f %.0f\n", umax0hr, umax1hr, umax2hr);
-        fprintf(stderr," vmax %.0f %.0f %.0f\n", vmax0hr, vmax1hr, vmax2hr);
-        fprintf(stderr," wmax %.0f %.0f %.0f\n", wmax0hr, wmax1hr, wmax2hr);
+        fprintf(stderr," origin %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
+        fprintf(stderr," umax %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
+        fprintf(stderr," vmax %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
+        fprintf(stderr," wmax %.0f %.0f %.0f\n", hr_a.W[0],hr_a.W[1],hr_a.W[2]);
         fprintf(stderr," step %f %f %f\n\n", step0hr, step1hr, step2hr);
       }
 
@@ -153,6 +156,10 @@ int vx_setup(const char *data_dir)
           step1hr=((hr_a.MAX[1] - hr_a.MIN[1]) * hr_a.V[1]) / (hr_a.N[1]-1);
           step2hr=((hr_a.MAX[2] - hr_a.MIN[2]) * hr_a.W[2]) / (hr_a.N[2]-1);
           fprintf(stderr,">>>Info: read HR------\n");
+//hr_a.O[0]=383000; hr_a.O[1]=3744000; hr_a.O[2]=-15000;
+//hr_a.U[0]=469000; hr_a.U[1]=3744000; hr_a.U[2]=-15000;
+//hr_a.V[0]=383000; hr_a.V[1]=3784000; hr_a.V[2]=-15000;
+//hr_a.W[0]=383000; hr_a.W[1]=3744000; hr_a.W[2]=4900;
           fprintf(stderr," origin %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
           fprintf(stderr," umax %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
           fprintf(stderr," vmax %.0f %.0f %.0f\n", hr_a.V[0],hr_a.V[1],hr_a.V[2]);
@@ -314,7 +321,7 @@ if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p12.FN); }
   step_to[1]=to_a.V[1]/(to_a.N[1]-1);
   step_to[2]=0.0;
 
-  if( (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
+  if( MEI || (hr_a.MIN[0] != 0) || (hr_a.MAX[0] != 1)) {
       step_hr[0]=step0hr;
       step_hr[1]=step1hr;
       step_hr[2]=step2hr;
@@ -425,6 +432,9 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     break;
   }
 
+  if(cvmhsgbn_debug) { fprintf(stderr," UTM -> %lf %lf %lf\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
+}
+
   /* Now we have UTM Zone 11 */
   /*** Prevent all to obvious bad coordinates from being displayed */
   if (entry->coor_utm[1] < 10000000) {
@@ -493,21 +503,24 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       gcoor[1]=round((entry->coor_utm[1]-hr_a.O[1])/step_hr[1]);
       gcoor[2]=round((entry->coor_utm[2]-hr_a.O[2])/step_hr[2]);
       
-if(_debug) { fprintf(stderr,"before    --- in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
+if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d) with utm(%f %f %f)\n", 
+                              gcoor[0],gcoor[1],gcoor[2], entry->coor_utm[0],
+                                           entry->coor_utm[1], entry->coor_utm[2]); }
+
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
-if(_debug) { fprintf(stderr,"    --- in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
+if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-if(_debug) { fprintf(stderr," entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
+if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
 	j=voxbytepos(gcoor,hr_a.N,p2.ESIZE);
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0.ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p2.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p2.ESIZE);
 	entry->data_src = VX_SRC_HR;
-if(cvmhsgbn_debug) { fprintf(stderr,"   DONE(HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+if(cvmhsgbn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
         do_bkg = True;
