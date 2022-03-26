@@ -143,11 +143,9 @@ int test_query_by_elevation()
   // Query a point.
   pt.longitude = -117.65;
   pt.latitude = 34.18;
-  double pt_elevation = 150;
+  double pt_elevation = 800;
   double pt_surf = 1049.9;
   pt.depth = pt_surf - pt_elevation; // elevation
-
-fprintf(stderr, " depth used .. %lf \n", pt.depth); 
 
   if (test_assert_int(model_query(&pt, &ret, 1), 0) != 0) {
       return(1);
@@ -156,11 +154,9 @@ fprintf(stderr, " depth used .. %lf \n", pt.depth);
   // Close the model.
   assert(model_finalize() == 0);
 
-fprintf(stderr, "%lf %lf %lf\n", ret.vs, ret.vp, ret.rho);
-
-  if ( test_assert_double(ret.vs, 1569.190063) ||
-       test_assert_double(ret.vp, 3180.260498) ||
-       test_assert_double(ret.rho, 2261.115808) ) {
+  if ( test_assert_double(ret.vs, 2.999969) ||
+       test_assert_double(ret.vp, 3966.294189) ||
+       test_assert_double(ret.rho, 2388.608443) ) {
      printf("FAIL\n");
      return(1);
      } else {
