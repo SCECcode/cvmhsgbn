@@ -106,7 +106,7 @@ int test_query_by_depth()
   // Close the model.
   assert(model_finalize() == 0);
 
-  if ( test_assert_double(ret.vs, 2.999969) ||
+  if ( test_assert_double(ret.vs, 2246.794678) ||
        test_assert_double(ret.vp, 3966.294189) ||
        test_assert_double(ret.rho, 2388.608443) ) {
      printf("FAIL\n");
@@ -154,7 +154,7 @@ int test_query_by_elevation()
   // Close the model.
   assert(model_finalize() == 0);
 
-  if ( test_assert_double(ret.vs, 2.999969) ||
+  if ( test_assert_double(ret.vs, 2246.794678) ||
        test_assert_double(ret.vp, 3966.294189) ||
        test_assert_double(ret.rho, 2388.608443) ) {
      printf("FAIL\n");

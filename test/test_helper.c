@@ -22,6 +22,9 @@ int test_assert_file_exist(const char* filename)
 }
 
 double get_preset_ucvm_surface(double y, double x) {
+   if(y == -117.65 && x == 34.18) {
+      return 1049.9;
+   }
    if(y == -118.1 && x == 34.0) {
       return 55.827;
    }
@@ -78,7 +81,7 @@ int get_test_points(double *x, double *y, double *z,
   z[8] = -1000.0;
   coord_types[8] = VX_COORD_GEO;
 
-// cvmhsgbn
+// cvmhlabn
   x[9] = 421000.0;
   y[9] = 3712000.0;
   z[9] = -2000.0;

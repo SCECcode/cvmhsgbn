@@ -73,6 +73,24 @@ int vx_io_finalize()
   return(0);
 }
 
+//PROPERTY 1 vp63_basin
+int vx_io_getpropkey(char *search) {
+  int i=0;
+  const char *pstr="PROPERTY ";
+  int slen=strlen(pstr);
+  int pkey=0;
+
+  while (i < vx_num_prop) {
+    if (strstr(vx_props[i], pstr)) {
+      if(strstr(&vx_props[i][slen], search) &&
+            sscanf(&vx_props[i][slen],"%d", &pkey) ) {
+        return pkey;
+      }
+    }
+    i++;
+  }
+  return(0);
+}
 
 /* Get vector from voxel property file */
 int vx_io_getvec(char *search, float *vec)
