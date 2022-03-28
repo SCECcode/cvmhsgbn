@@ -22,6 +22,9 @@ int test_assert_file_exist(const char* filename)
 }
 
 double get_preset_ucvm_surface(double y, double x) {
+   if(y == -118 && x == 34.1) {
+      return 104.143;
+   }
    if(y == -117.65 && x == 34.18) {
       return 1049.9;
    }
@@ -81,10 +84,11 @@ int get_test_points(double *x, double *y, double *z,
   z[8] = -1000.0;
   coord_types[8] = VX_COORD_GEO;
 
-// cvmhlabn
-  x[9] = 421000.0;
-  y[9] = 3712000.0;
-  z[9] = -2000.0;
+// 440000.000000,3782000.000000,800.000427,2.999969,3966.294189,2246.794678
+// cvmhsgbn
+  x[9] = 440000.0;
+  y[9] = 3782000.0;
+  z[9] = 800.0;
   coord_types[9] = VX_COORD_UTM;
 
 /* depth ..
@@ -100,6 +104,7 @@ int get_test_points(double *x, double *y, double *z,
   return(0);
 }
 
+// XXX need to check this
 /* Retrieve expected surface elev at the test points */
 // 8th column
 int get_surf_values(double *surf_values)
@@ -113,7 +118,7 @@ int get_surf_values(double *surf_values)
   surf_values[6] = 99.369789;
   surf_values[7] = 93.892632;
   surf_values[8] = 93.892632;
-  surf_values[9] = 93.892632;
+  surf_values[9] = 1049.9;
 
   return(0);
 }
