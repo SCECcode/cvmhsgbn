@@ -21,15 +21,31 @@ int test_assert_file_exist(const char* filename)
   return(0);
 }
 
+double get_preset_cvmh_surface(double y, double x) {
+//UTM 407756.686157 3773500.426103 0
+   if(y == -118 && x == 34.1) {
+      return 49.99;
+   }
+//UTM 440098.982965 3782110.177553 249
+   if(y == -117.65 && x == 34.18) {
+      return 1049.987;
+   }
+//UTM 398412.739416 3762506.873818 0 
+   if(y == -118.1 && x == 34.0) {
+      return 49.99;
+   }
+   return 0;
+}
+
 double get_preset_ucvm_surface(double y, double x) {
    if(y == -118 && x == 34.1) {
       return 104.143;
    }
    if(y == -117.65 && x == 34.18) {
-      return 1049.9;
+      return 1068.792;
    }
    if(y == -118.1 && x == 34.0) {
-      return 55.827;
+      return 55.837;
    }
    return 0;
 }

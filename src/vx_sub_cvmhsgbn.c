@@ -484,7 +484,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     if (enhanced == True) {
       elev = entry->coor_utm[2];
       vx_getsurface(entry->coor, entry->coor_type, &surface);
-      if(cvmhsgbn_debug) { fprintf(stderr," surface -- %lf\n", surface); }
+      if(cvmhsgbn_debug) { fprintf(stderr," cvmh surface -- %lf\n", surface); }
       if (surface < -90000.0) {
 	return(1);
       }
