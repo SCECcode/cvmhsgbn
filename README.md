@@ -10,7 +10,7 @@
 
 ## Description
 
-CVMH Los Angeles Basin
+CVMH San Gabriel Basin
 
 ## Table of Contents
 1. [Software Documentation](https://github.com/SCECcode/cvmhsgbn/wiki)
