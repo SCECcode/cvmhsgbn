@@ -47,7 +47,7 @@ jobs:
       run: ./.github/scripts/cvmhsgbn-test-standalone.sh
       shell: bash
     - name: Start SSH via Ngrok
-      if: ${{ failure() }}
+      if: ${{ success() }}
       uses: luchihoratiu/debug-via-ssh@main
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
