@@ -8,12 +8,24 @@
 #include <math.h>
 #include "unittest_defs.h"
 
+
+int track_failure_count = 0;
+
+void _reset_failure() {
+    track_failure_count=0;
+}
+
+int _has_failure() {
+    return track_failure_count;
+}
+
 int _success() {
    printf("PASS\n");
    return(0);
 }
 
 int _failure(char* estr) {
+   track_failure_count ++;
    if(estr) {
      fprintf(stderr,"ERROR: %s\n", estr);
    }
