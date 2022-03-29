@@ -156,7 +156,7 @@ int save_elevation_test_points(const char* filename)
     sprintf(line, "%f %f %f\n", x[i], y[i], z[i]);
     retval = fwrite(line, strlen(line), 1, fp);
     if (retval != 1) {
-      printf("FAIL: write failed\n");
+      fprintf(stderr,"ERROR: write failed\n");
       return(1);
     }
   }
@@ -186,7 +186,7 @@ int save_depth_test_points(const char* filename)
 
   fp = fopen(filename, "w");
   if (fp == NULL) {
-    printf("FAIL: cannot open %s\n", filename);
+    fprintf(stderr,"ERROR: cannot open %s\n", filename);
     return(1);
   }
 
@@ -194,7 +194,7 @@ int save_depth_test_points(const char* filename)
     sprintf(line, "%f %f %f\n", x[i], y[i], z[i]+surf[i]);
     retval = fwrite(line, strlen(line), 1, fp);
     if (retval != 1) {
-      printf("FAIL: write failed\n");
+      fprintf(stderr,"ERROR: write failed\n");
       return(1);
     }
   }
@@ -240,12 +240,12 @@ int runCVMHSGBN(const char *bindir, const char *cvmdir,
   /* open infile, outfile */
   infp = fopen(infile, "r");
   if (infp == NULL) {
-    printf("FAIL: cannot open %s\n", infile);
+    fprintf(stderr,"ERROR: cannot open %s\n", infile);
     return(1);
   }
   outfp = fopen(outfile, "w");
   if (outfp == NULL) {
-    printf("FAIL: cannot open %s\n", outfile);
+    fprintf(stderr,"ERROR: cannot open %s\n", outfile);
     return(1);
   }
 
@@ -315,7 +315,7 @@ int runVXCVMHSGBN(const char *bindir, const char *cvmdir,
     }
 
     perror("execl"); /* shall never get to here */
-    printf("FAIL: CVM exited abnormally\n");
+    fprintf(stderr,"ERROR: CVM exited abnormally\n");
     return(1);
   } else {
     int status;
@@ -323,7 +323,7 @@ int runVXCVMHSGBN(const char *bindir, const char *cvmdir,
     if (WIFEXITED(status)) {
       return(0);
     } else {
-      printf("FAIL: CVM exited abnormally\n");
+      fprintf(stderr,"ERROR: CVM exited abnormally\n");
       return(1);
     }
   }
@@ -367,13 +367,13 @@ int runVXLiteCVMHSGBN(const char *bindir, const char *cvmdir,
   pid = fork();
   if (pid == -1) {
     perror("fork");
-    printf("FAIL: unable to fork\n");
+    fprintf(stderr,"ERROR: unable to fork\n");
     return(1);
   } else if (pid == 0) {
 
     /* Change dir to bindir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_lite_cvmhsgbn.sh\n");
+      fprintf(stderr,"ERROR: can not change  dir in run_vx_lite_cvmhsgbn.sh\n");
       return(1);
     }
 
@@ -383,7 +383,7 @@ int runVXLiteCVMHSGBN(const char *bindir, const char *cvmdir,
       execl(runpath, runpath, flags, infile, outfile, (char *)0);
     }
     perror("execl"); /* shall never get to here */
-    printf("FAIL: CVM exited abnormally\n");
+    fprintf(stderr,"ERROR: CVM exited abnormally\n");
     return(1);
   } else {
     int status;
@@ -391,7 +391,7 @@ int runVXLiteCVMHSGBN(const char *bindir, const char *cvmdir,
     if (WIFEXITED(status)) {
       return(0);
     } else {
-      printf("FAIL: CVM exited abnormally\n");
+      fprintf(stderr,"ERROR: CVM exited abnormally\n");
       return(1);
     }
   }
