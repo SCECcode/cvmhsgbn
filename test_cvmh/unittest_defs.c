@@ -45,7 +45,7 @@ int test_assert_file(const char *file1, const char *file2)
   fp1 = fopen(file1, "r");
   fp2 = fopen(file2, "r");
   if ((fp1 == NULL) || (fp2 == NULL)) {
-    printf("FAIL: unable to open %s and/or %s\n", file1, file2);
+    fprintf(stderr,"FAIL: unable to open %s and/or %s\n", file1, file2);
     return(1);
   }
   while ((!feof(fp1)) && (!feof(fp2))) {
@@ -54,11 +54,12 @@ int test_assert_file(const char *file1, const char *file2)
     fread(line1, 1, 127, fp1);
     fread(line2, 1, 127, fp2);
     if (test_assert_int(strcmp(line1, line2), 0) != 0) {
+      fprintf(stderr,"FAIL: %s and %s are of unequal length\n", file1, file2);
       return(1);
     }
   }
   if ((!feof(fp1)) || (!feof(fp2))) {
-    printf("FAIL: %s and %s are of unequal length\n", file1, file2);
+    fprintf(stderr,"FAIL: %s and %s are of unequal length\n", file1, file2);
     return(1);
   }
 

@@ -25,7 +25,7 @@ int test_vx_grid()
 
   sprintf(infile, "%s/%s", currentdir, "./inputs/test-grid.in");
   sprintf(outfile, "%s/%s", currentdir, "test-vx-grid-extract.out");
-  sprintf(reffile, "%s/%s", currentdir, "./ref/test-extract.ref");
+  sprintf(reffile, "%s/X%s", currentdir, "./ref/test-extract.ref");
 
   if (test_assert_int(runVX(BIN_DIR, MODEL_DIR,infile, outfile), 0) != 0) {
     printf("vx failure\n"); 

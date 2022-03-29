@@ -9,18 +9,6 @@
 
 int debug_mode=0;
 
-int test_assert_file_exist(const char* filename)
-{
-  FILE *fp;
-
-  fp = fopen(filename, "r");
-  if (fp == NULL) {
-    fclose(fp);
-    return(1);
-  }
-  return(0);
-}
-
 double get_preset_cvmh_surface(double y, double x) {
 //UTM 407756.686157 3773500.426103 0
    if(y == -118 && x == 34.1) {
@@ -160,7 +148,7 @@ int save_elevation_test_points(const char* filename)
 
   fp = fopen(filename, "w");
   if (fp == NULL) {
-    printf("FAIL: cannot open %s\n", filename);
+    printf("Cannot open %s\n", filename);
     return(1);
   }
 
@@ -316,7 +304,7 @@ int runVXCVMHSGBN(const char *bindir, const char *cvmdir,
   } else if (pid == 0) {
     /* Change dir to cvmdir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_cvmhsgbn.sh\n");
+      printf("unable to change dir in run_vx_cvmhsgbn.sh\n");
       return(1);
     }
 

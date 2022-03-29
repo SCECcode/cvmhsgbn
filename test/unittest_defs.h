@@ -38,6 +38,7 @@ typedef struct suite_t {
 
 
 /* Assertions of equality */
+int test_assert_file_exist(const char* filename);
 int test_assert_int(int val1, int val2);
 int test_assert_float(float val1, float val2);
 int test_assert_double(double val1, double val2);

@@ -8,11 +8,22 @@
 #include <math.h>
 #include "unittest_defs.h"
 
+int test_assert_file_exist(const char* filename)
+{
+  FILE *fp;
+
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
+    fclose(fp);
+    return(1);
+  }
+  return(0);
+}
 
 int test_assert_int(int val1, int val2)
 {
   if (val1 != val2) {
-    fprintf(stderr, "FAIL: assertion %d != %d\n", val1, val2);
+    fprintf(stderr, "FAIL: integer assertion %d != %d\n", val1, val2);
     return(1);
   }
   return(0);
@@ -21,7 +32,7 @@ int test_assert_int(int val1, int val2)
 int test_assert_float(float val1, float val2)
 {
   if (fabsf(val1 - val2) > 0.01) {
-    fprintf(stderr, "FAIL: assertion %f != %f\n", val1, val2);
+    fprintf(stderr, "FAIL: float assertion %f != %f\n", val1, val2);
     return(1);
   }
   return(0);
@@ -30,7 +41,7 @@ int test_assert_float(float val1, float val2)
 int test_assert_double(double val1, double val2)
 {
   if (fabs(val1 - val2) > 0.01) {
-    fprintf(stderr, "FAIL: assertion %lf != %lf\n", val1, val2);
+    fprintf(stderr, "FAIL: double assertion %lf != %lf\n", val1, val2);
     return(1);
   }
   return(0);
