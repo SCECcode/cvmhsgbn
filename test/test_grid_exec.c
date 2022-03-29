@@ -37,8 +37,7 @@ int test_cvmhsgbn_grid_elev()
 
   if (test_assert_int(runCVMHSGBN(BIN_DIR, MODEL_DIR,infile, outfile,
 				MODE_ELEVATION), 0) != 0) {
-    printf("cvmhsgbn failure\n");
-    return(1);
+    return _failure("cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
@@ -46,14 +45,12 @@ int test_cvmhsgbn_grid_elev()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-
-  return(0);
+  return _success();
 }
 
 int test_cvmhsgbn_grid_depth()
@@ -74,8 +71,7 @@ int test_cvmhsgbn_grid_depth()
 
   if (test_assert_int(runCVMHSGBN(BIN_DIR, MODEL_DIR,infile, outfile,
 				MODE_DEPTH), 0) != 0) {
-    printf("cvmhsgbn failure\n");
-    return(1);
+    return _failure("cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
@@ -83,14 +79,12 @@ int test_cvmhsgbn_grid_depth()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-
-  return(0);
+  return _success();
 }
 
 int test_cvmhsgbn_grid_offset()
@@ -111,8 +105,7 @@ int test_cvmhsgbn_grid_offset()
 
   if (test_assert_int(runCVMHSGBN(BIN_DIR, MODEL_DIR,infile, outfile,
 				MODE_NONE), 0) != 0) {
-    printf("cvmhsgbn failure\n");
-    return(1);
+    return _failure("cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
@@ -120,14 +113,12 @@ int test_cvmhsgbn_grid_offset()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-
-  return(0);
+  return _success();
 }
 
 
@@ -149,8 +140,7 @@ int test_vx_lite_cvmhsgbn_grid_elev()
 
   if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_ELEVATION), 0) != 0) {
-    printf("vx_lite_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_lite_cvmhsgbn failure");
   }  
 
   /* Perform diff btw outfile and ref */
@@ -158,13 +148,12 @@ int test_vx_lite_cvmhsgbn_grid_elev()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -186,8 +175,7 @@ int test_vx_lite_cvmhsgbn_grid_depth()
 
   if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_DEPTH), 0) != 0) {
-    printf("vx_lite_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_lite_cvmhsgbn failure");
   }  
 
   /* Perform diff btw outfile and ref */
@@ -195,13 +183,12 @@ int test_vx_lite_cvmhsgbn_grid_depth()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -226,8 +213,7 @@ int test_vx_lite_cvmhsgbn_grid_offset()
 
   if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_NONE), 0) != 0) {
-    printf("vx_lite_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_lite_cvmhsgbn failure");
   }  
 
   /* Perform diff btw outfile and ref */
@@ -235,13 +221,12 @@ int test_vx_lite_cvmhsgbn_grid_offset()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _sucess();
 }
 
 int suite_grid_exec(const char *xmldir)

@@ -30,23 +30,22 @@ int test_vx_points()
 	  "./ref/test-8-point-vx-extract-elev.ref");
 
   if (test_assert_int(save_test_points(infile), 0) != 0) {
-    return(1);
+    return _failure("Fail to create test points");
   }
 
   if (test_assert_int(runVX(BIN_DIR, MODEL_DIR, infile, outfile), 0) != 0) {
-    return(1);
+    return _failure("vx call failed");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("Mismatched result");
   }
 
   unlink(infile);
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -61,8 +60,7 @@ int suite_vx_exec(const char *xmldir)
   suite.num_tests = 1;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
   if (suite.tests == NULL) {
-    fprintf(stderr, "Failed to alloc test structure\n");
-    return(1);
+    return _failure("Failed to alloc test structure");
   }
   test_get_time(&suite.exec_time);
 
@@ -72,21 +70,18 @@ int suite_vx_exec(const char *xmldir)
   suite.tests[0].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
-    fprintf(stderr, "Failed to execute tests\n");
-    return(1);
+    return _failure("Failed to execute tests");
   }
 
   if (xmldir != NULL) {
     sprintf(logfile, "%s/%s.xml", xmldir, suite.suite_name);
     lf = init_log(logfile);
     if (lf == NULL) {
-      fprintf(stderr, "Failed to initialize logfile\n");
-      return(1);
+      return _failure("Failed to initialize logfile");
     }
     
     if (write_log(lf, &suite) != 0) {
-      fprintf(stderr, "Failed to write test log\n");
-      return(1);
+      return _failure("Failed to write test log");
     }
     
     close_log(lf);

@@ -11,7 +11,6 @@
 #include <math.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <assert.h>
 #include "cvmhsgbn.h"
 #include "unittest_defs.h"
 #include "test_helper.h"
@@ -26,18 +25,17 @@ int test_setup()
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
     if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
-      return(1);
+      return _failure("model_init failed");
     }
   } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
-    return(1);
+    return _failure("model_init failed");
   }
 
   if (test_assert_int(model_finalize(), 0) != 0) {
-    return(1);
+    reurn _failure("model_finalize failed");
   }
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 int test_setparam()
@@ -48,22 +46,23 @@ int test_setparam()
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
     if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
-      return(1);
+      return _failure("model_init failed");
     }
   } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
-    return(1);
+    return _failure("model_init failed");
   }
 
   int zmode = UCVM_COORD_GEO_DEPTH;
   if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
-      return(1);
+      return _failure("model_setparam failed");
   }
 
   // Close the model.
-  assert(model_finalize() == 0);
+  if(model_finalize() != 0) {
+      return _failure("model_finalize failed");
+  }
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 /**
@@ -83,15 +82,15 @@ int test_query_by_depth()
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
     if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
-      return(1);
+      return _failure("model_init failed");
     }
   } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
-    return(1);
+    return _failure("model_init failed");
   }
 
   int zmode = UCVM_COORD_GEO_DEPTH;
   if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
-      return(1);
+      return _failure("model_setparam failed");
   }
 
   // Query a point.
@@ -100,20 +99,20 @@ int test_query_by_depth()
   pt.depth = 249;
 
   if (test_assert_int(model_query(&pt, &ret, 1), 0) != 0) {
-      return(1);
+      return _failure("model_query failed");
   }
 
   // Close the model.
-  assert(model_finalize() == 0);
+  if(model_finalize() != 0) {
+      return _failure("model_finalize failed");
+  }
 
   if ( test_assert_double(ret.vs, 2246.794678) ||
        test_assert_double(ret.vp, 3966.294189) ||
        test_assert_double(ret.rho, 2388.608443) ) {
-     printf("FAIL\n");
-     return(1);
+     return _failure("unmatched result"):
      } else {
-       printf("PASS\n");
-       return(0);
+       return _success();
   }
 
 }
@@ -129,15 +128,15 @@ int test_query_by_elevation()
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
     if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
-      return(1);
+      return _failure("model_init failed");
     }
   } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
-    return(1);
+    return _failure("model_init failed");
   }
 
   int zmode = UCVM_COORD_GEO_ELEV;
   if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
-      return(1);
+      return _failure("model_setparam failed");
   }
 
   // Query a point.
@@ -148,20 +147,20 @@ int test_query_by_elevation()
   pt.depth = pt_surf - pt_elevation; // elevation
 
   if (test_assert_int(model_query(&pt, &ret, 1), 0) != 0) {
-      return(1);
+      return _failure("model_query failed");
   }
 
   // Close the model.
-  assert(model_finalize() == 0);
+  if(model_finalize() != 0) {
+      return _failure("model_finalize failed");
+  }
 
   if ( test_assert_double(ret.vs, 2246.794678) ||
        test_assert_double(ret.vp, 3966.294189) ||
        test_assert_double(ret.rho, 2388.608443) ) {
-     printf("FAIL\n");
-     return(1);
+     return _failure("unmatched result"):
      } else {
-       printf("PASS\n");
-       return(0);
+       return _success();
   }
 }
 
@@ -192,34 +191,31 @@ int test_query_points_by_elevation()
           "./ref/test_latlons_ucvm_ge.ref");
 
   if (test_assert_file_exist(infile) != 0) {
-    printf("file:%s not found\n",infile);
-    return(1);
+    return _failure("filed not found");
   }
 
   // pick up every point and convert the elevation to depth in pt structure
   infp = fopen(infile, "r");
   if (infp == NULL) {
-    printf("FAIL: cannot open %s\n", infile);
-    return(1);
+    return _failure("input file not found");
   }
   outfp = fopen(outfile, "w");
   if (outfp == NULL) {
-    printf("FAIL: cannot open %s\n", outfile);
-    return(1);
+    return _failure("output file can not be open");
   }
 
   char *envstr=getenv("UCVM_INSTALL_PATH");
   if(envstr != NULL) {
     if (test_assert_int(model_init(envstr, "cvmhsgbn"), 0) != 0) {
-      return(1);
+      return _failure("model_init failed");
     }
   } else if (test_assert_int(model_init("..", "cvmhsgbn"), 0) != 0) {
-    return(1);
+    return _failure("model_init failed");
   }
 
   int zmode = UCVM_COORD_GEO_ELEV;
   if (test_assert_int(model_setparam(0, UCVM_PARAM_QUERY_MODE, zmode), 0) != 0) {
-      return(1);
+      return _failure("model_setparam failed");
   }
 
 /* process one term at a time */
@@ -243,16 +239,17 @@ int test_query_points_by_elevation()
     printf("unmatched result\n");
     printf("%s\n",outfile);
     printf("%s\n",reffile);
-    return(1);
+    return _failure("diff file");
   }
 
   // Close the model.
-  assert(model_finalize() == 0);
+  if(model_finalize() != 0) {
+      return _failure("model_finalize failed");
+  }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 int suite_cvmhsgbn_exec(const char *xmldir)

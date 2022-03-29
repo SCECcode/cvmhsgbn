@@ -69,14 +69,14 @@ int save_test_points(const char* filename)
 
   fp = fopen(filename, "w");
   if (fp == NULL) {
-    printf("FAIL: cannot open %s\n", filename);
+    fprintf(stderr,"ERROR: cannot open %s\n", filename);
     return(1);
   }
   for (i = 0; i < MAX_TEST_POINTS; i++) {
     sprintf(line, "%f %f %f\n", x[i], y[i], z[i]);
     retval = fwrite(line, strlen(line), 1, fp);
     if (retval != 1) {
-      printf("FAIL: write failed\n");
+      fprintf(stderr, "ERROR: write failed\n");
       return(1);
     }
   }
@@ -215,13 +215,13 @@ int runVX(const char *bindir, const char *cvmdir,
   } else if (pid == 0) {
     /* Change dir to cvmdir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx.sh\n");
+      fprintf(stderr,"ERROR: Error changing dir in run_vx.sh\n");
       return(1);
     }
 
     execl(runpath, runpath, infile, outfile, (char *)0);
     perror("execl"); /* shall never get to here */
-    printf("FAIL: CVM exited abnormally\n");
+    fprintf(stderr,"ERROR: CVM exited abnormally\n");
     return(1);
   } else {
     int status;
@@ -229,7 +229,7 @@ int runVX(const char *bindir, const char *cvmdir,
     if (WIFEXITED(status)) {
       return(0);
     } else {
-      printf("FAIL: CVM exited abnormally\n");
+      fprintf(stderr,"ERROR: CVM exited abnormally\n");
       return(1);
     }
   }
@@ -268,13 +268,13 @@ int runVXLite(const char *bindir, const char *cvmdir,
   pid = fork();
   if (pid == -1) {
     perror("fork");
-    printf("FAIL: unable to fork\n");
+    fprintf(stderr,"ERROR: unable to fork\n");
     return(1);
   } else if (pid == 0) {
 
     /* Change dir to bindir */
     if (chdir(bindir) != 0) {
-      printf("FAIL: Error changing dir in run_vx_lite.sh\n");
+      fprintf(stderr,"ERROR: unable to change dir in run_vx_lite.sh\n");
       return(1);
     }
 
@@ -284,7 +284,7 @@ int runVXLite(const char *bindir, const char *cvmdir,
       execl(runpath, runpath, flags, infile, outfile, (char *)0);
     }
     perror("execl"); /* shall never get to here */
-    printf("FAIL: CVM exited abnormally\n");
+    fprintf(stderr,"ERROR: CVM exited abnormally\n");
     return(1);
   } else {
     int status;
@@ -292,7 +292,7 @@ int runVXLite(const char *bindir, const char *cvmdir,
     if (WIFEXITED(status)) {
       return(0);
     } else {
-      printf("FAIL: CVM exited abnormally\n");
+      fprintf(stderr,"ERROR: CVM exited abnormally\n");
       return(1);
     }
   }

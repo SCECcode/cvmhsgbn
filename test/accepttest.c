@@ -19,8 +19,14 @@ int main (int argc, char *argv[])
     xmldir = NULL;
   }
 
+  _reset_failure();
+
   /* Run test suites */
   suite_grid_exec(xmldir);
 
-  return 0;
+  if(_has_failure()) {
+    return 1;
+    } else {
+      return 0;
+  }
 }

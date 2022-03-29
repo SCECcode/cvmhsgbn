@@ -40,24 +40,22 @@ int test_vx_lite_cvhmlabn_points_elevation()
 	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-elev.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
-    return(1);
+    return _failure("save test points failed");
   }
 
   if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_ELEVATION), 0) != 0) {
-    printf("vx_lite_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_lite_cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -81,26 +79,22 @@ int test_vx_lite_cvhmlabn_points_depth()
 	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-depth.ref");
 
   if (test_assert_int(save_depth_test_points(infile), 0) != 0) {
-    printf("save test point failure\n");
-    return(1);
+    return _failure("save test point failed");
   }
 
   if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_DEPTH), 0) != 0) {
-    printf("vx_lite_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_lite_cvmhsgbn failure");
   }  
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    printf("diff failure\n");
-    return(1);
+    return _failure("diff failure");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 int test_vx_lite_cvhmlabn_points_offset()
@@ -122,24 +116,22 @@ int test_vx_lite_cvhmlabn_points_offset()
 	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-offset.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
-    return(1);
+    return _failure("fail to create test points");
   }
 
   if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_NONE), 0) != 0) {
-    printf("vx_lite_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_lite_cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -155,7 +147,7 @@ int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
   suite.num_tests = VX_LITE_TESTS;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
   if (suite.tests == NULL) {
-    fprintf(stderr, "Failed to alloc test structure\n");
+    fprintf(stderr, "ERROR: Failed to alloc test structure\n");
     return(1);
   }
   test_get_time(&suite.exec_time);
@@ -174,7 +166,7 @@ int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
   suite.tests[2].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
-    fprintf(stderr, "Failed to execute tests\n");
+    fprintf(stderr, "ERROR: Failed to execute tests\n");
     return(1);
   }
 
@@ -182,12 +174,12 @@ int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
     sprintf(logfile, "%s/%s.xml", xmldir, suite.suite_name);
     lf = init_log(logfile);
     if (lf == NULL) {
-      fprintf(stderr, "Failed to initialize logfile\n");
+      fprintf(stderr, "ERROR: Failed to initialize logfile\n");
       return(1);
     }
     
     if (write_log(lf, &suite) != 0) {
-      fprintf(stderr, "Failed to write test log\n");
+      fprintf(stderr, "ERROR: Failed to write test log\n");
       return(1);
     }
     

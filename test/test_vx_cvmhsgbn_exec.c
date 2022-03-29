@@ -40,24 +40,22 @@ int test_vx_cvmhsgbn_points_elevation()
 	  "./ref/test-10-point-vx-cvmhsgbn-extract-elev.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
-    return(1);
+    return _failure("save test points failed");
   }
 
   if (test_assert_int(runVXCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_ELEVATION), 0) != 0) {
-    printf("vx_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("unmatch result with reference");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -81,26 +79,22 @@ int test_vx_cvmhsgbn_points_depth()
 	  "./ref/test-10-point-vx-cvmhsgbn-extract-depth.ref");
 
   if (test_assert_int(save_depth_test_points(infile), 0) != 0) {
-    printf("save test point failure\n");
-    return(1);
+    return _failure("save test points failed");
   }
 
   if (test_assert_int(runVXCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_DEPTH), 0) != 0) {
-    printf("vx_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_cvmhsgbn failure");
   }  
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    printf("diff failure\n");
-    return(1);
+    return _failure("diff failure");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 int test_vx_cvmhsgbn_points_offset()
@@ -122,24 +116,22 @@ int test_vx_cvmhsgbn_points_offset()
 	  "./ref/test-10-point-vx-cvmhsgbn-extract-offset.ref");
 
   if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
-    return(1);
+    return _failure("save test points failed");
   }
 
   if (test_assert_int(runVXCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_NONE), 0) != 0) {
-    printf("vx_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 
@@ -163,25 +155,22 @@ int test_vx_cvmhsgbn_points_ge()
 	  "./ref/test_latlons_cvmh_ge.ref");
 
   if (test_assert_file_exist(infile) != 0) {
-    printf("file:%s not found\n",infile);
-    return(1);
+    return _failure("data file not found");
   }
 
   if (test_assert_int(runVXCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_ELEVATION), 0) != 0) {
-    printf("vx_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 int test_vx_cvmhsgbn_points_gd()
@@ -205,24 +194,22 @@ int test_vx_cvmhsgbn_points_gd()
 
   if (test_assert_file_exist(infile) != 0) {
     printf("file:%s not found\n",infile);
-    return(1);
+    return _failure("data file not found");
   }
 
   if (test_assert_int(runVXCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
 				MODE_DEPTH), 0) != 0) {
-    printf("vx_cvmhsgbn failure\n");
-    return(1);
+    return _failure("vx_cvmhsgbn failure");
   }
 
   /* Perform diff btw outfile and ref */
   if (test_assert_file(outfile, reffile) != 0) {
-    return(1);
+    return _failure("diff file");
   }
 
   unlink(outfile);
 
-  printf("PASS\n");
-  return(0);
+  return _success();
 }
 
 int suite_vx_cvmhsgbn_exec(const char *xmldir)
