@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![GitHub repo size](https://img.shields.io/github/repo-size/meihuisu/cvmhsgbn)
-[![cvmhsgbn-ci Actions Status](https://github.com/meihuisu/cvmhsgbn/workflows/cvmhsgbn-ci/badge.svg)](https://github.com/meihuisue/cvmhsgbn/actions)
+[![cvmhsgbn-ci Actions Status](https://github.com/meihuisu/cvmhsgbn/workflows/cvmhsgbn-ci/badge.svg)](https://github.com/meihuisu/cvmhsgbn/actions)
 [![cvmhsgbn-ucvm-ci Actions Status](https://github.com/meihuisu/cvmhsgbn/workflows/cvmhsgbn-ucvm-ci/badge.svg)](https://github.com/meihuisu/cvmhsgbn/actions)
 
 
