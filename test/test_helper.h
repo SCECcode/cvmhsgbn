@@ -20,6 +20,7 @@ typedef enum { VX_TEST_DATASET_NOBKG = 0,
 
 int test_assert_file_exist(const char* filename);
 double get_preset_ucvm_surface(double, double);
+double get_preset_cvmh_surface(double, double);
 
 /* Retrieve basic test points */
 int get_test_points(double *x, double *y, double *z, 
