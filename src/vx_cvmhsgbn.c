@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <unistd.h>
 #include "cvmhsgbn.h"
 
 extern int cvmhsgbn_debug;

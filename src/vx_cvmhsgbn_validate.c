@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <assert.h>
 #include <string.h>
 #include "cvmhsgbn.h"
@@ -50,7 +51,7 @@ FILE *_process_datfile(char *fname) {
   char dat_line[1028];
   FILE *fp = fopen(fname, "r");
   if (fp == NULL) {
-    fprintf(stderr,"FAIL: Unable to open the validation data file %s\n", fname):
+    fprintf(stderr,"FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
   /* read the title line */
@@ -74,25 +75,16 @@ FILE *_process_datfile(char *fname) {
   while(p != NULL)
   {
     printf("'%s'\n", p);
-    switch(p)  {
-      case "X":
-        dat_entry.x_idx=counter;
-        break;
-      case "Y":
-        dat_entry.y_idx=counter;
-        break;
-      case "Z":
-        dat_entry.z_idx=counter;
-        break;
-      case "vp63_basin":
-        dat_entry.vp_idx=counter;
-        break;
-      case "vs63_basin":
-        dat_entry.vs_idx=counter;
-        break;
-      default:
-        break;
-    }
+    if(strcmp(p,"X")==0)
+      dat_entry.x_idx=counter;
+    else if(strcmp(p,"Y")==0)
+      dat_entry.y_idx=counter;
+    else if(strcmp(p,"Z")==0)
+      dat_entry.z_idx=counter;
+    else if(strcmp(p,"vp63_basin")==0)
+      dat_entry.vp_idx=counter;
+    else if(strcmp(p,"vs63_basin")==0)
+      dat_entry.vs_idx=counter;
     p = strtok(NULL, delimiter);
     counter++;
   }
