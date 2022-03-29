@@ -162,6 +162,7 @@ int cvmhsgbn_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int nu
         entry.coor[1]=points[i].latitude;
         entry.coor_type = cvmhsgbn_zmode;
         vx_getsurface(&(entry.coor[0]), entry.coor_type, &vx_surf);
+     
         if(cvmhsgbn_ucvm_debug) {
            fprintf(stderr, "cvmhsgbn_query: surface is %f vs initial query depth %f\n", vx_surf, points[i].depth);
         }

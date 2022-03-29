@@ -44,7 +44,7 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 /**
- * Initializes and CVMHSGBN in standalone mode with ucvm plugin 
+ * Initializes CVMHSGBN in standalone mode as ucvm plugin 
  * api.
  *
  * @param argc The number of arguments.
@@ -122,9 +122,15 @@ int main(int argc, char* const argv[]) {
                 }
                 vx_getsurface(coor, coor_type, &surface);
                 pt.depth = surface - elev;
+
+                if(cvmhsgbn_debug) {
+                  fprintf(stderr, "  calling vx_getsurface: surface is %f, initial elevation %f > depth(%f)\n",
+                         surface, elev, pt.depth);
+                }
               }
 
 	      rc=cvmhsgbn_query(&pt, &ret, 1);
+              if(cvmhsgbn_debug) {fprintf(stderr, " >>>> with.. %lf %lf %lf\n\n",pt.longitude, pt.latitude, pt.depth); }
               if(rc == 0) {
                 printf("vs : %lf vp: %lf rho: %lf\n",ret.vs, ret.vp, ret.rho);
                 } else {

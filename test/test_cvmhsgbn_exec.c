@@ -228,7 +228,7 @@ int test_query_points_by_elevation()
     if(line[0] == '#') continue; // a comment
     if (sscanf(line,"%lf %lf %lf",
          &pt.longitude,&pt.latitude,&elev) == 3) {
-      surf = get_preset_ucvm_surface(pt.longitude, pt.latitude);
+      surf = get_preset_cvmh_surface(pt.longitude, pt.latitude);
       pt.depth= surf - elev;
       if (test_assert_int(model_query(&pt, &ret, 1), 0) == 0) {
          fprintf(outfp,"%lf %lf %lf\n",ret.vs, ret.vp, ret.rho);
