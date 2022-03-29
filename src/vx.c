@@ -66,7 +66,7 @@ double SP[2],SPUTM[2];
 char res[4]="nr\0";
 char filename[CMLEN];
 
-char MODEL_DIR[CMLEN] = "../data/cvmhlabn";
+char MODEL_DIR[CMLEN] = "../data/cvmhsgbn";
 
 char LR_PAR[CMLEN]="CVM_LR.vo";
 FILE *LALR;
