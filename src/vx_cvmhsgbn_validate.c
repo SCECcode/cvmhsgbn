@@ -7,6 +7,9 @@
  * Tests the CVMHSGBN library by loading it and executing the code as
  * UCVM would.
  *
+ *
+ *  ./vx_cvmhsgbn_validate -z elev -f CVMHB-San-Gabriel-Basin.dat
+ *
  */
 
 #include <stdlib.h>
@@ -16,7 +19,7 @@
 #include <string.h>
 #include "cvmhsgbn.h"
 
-extern int cvmhsgbn_debug;
+int validate_debug = 0;
 
 /*********************************************/
 typedef struct dat_entry_t 
@@ -74,7 +77,7 @@ FILE *_process_datfile(char *fname) {
 // X,Y,Z,tag61_basin,vp63_basin,vs63_basin
   while(p != NULL)
   {
-    printf("'%s'\n", p);
+//    printf("'%s'\n", p);
     if(strcmp(p,"X")==0)
       dat_entry.x_idx=counter;
     else if(strcmp(p,"Y")==0)
@@ -91,7 +94,7 @@ FILE *_process_datfile(char *fname) {
   return fp;
 }
 
-int _next_datfile(FILE *fp, dat_data_t &dat) {
+int _next_datfile(FILE *fp, dat_data_t *dat) {
 
   char dat_line[1028];
   if (fgets(dat_line, 1028, fp) == NULL) {
@@ -106,30 +109,20 @@ int _next_datfile(FILE *fp, dat_data_t &dat) {
 //383000.000000,3744000.000000,-15000.000000,-99999.000000,-99999.000000,-99999.000000
   while(p != NULL) {
     double val = atof(p);
-    switch (counter) {
-      case dat_entry.x_idx:
-         dat.x=val;
-         break;
-      case dat_entry.y_idx:
-         dat.y=val;
-         break;
-      case dat_entry.z_idx:
-         dat.z=val;
-         break;
-      case dat_entry.vs_idx:
-         dat.vx=val;
-         break;
-      case dat_entry.vp_idx:
-         dat.vp=val;
-         break;
-      default:
-         //skip
-         break;
-    }
+    if(counter == dat_entry.x_idx)
+        dat->x=val;
+      else if (counter == dat_entry.y_idx)
+        dat->y=val;
+      else if (counter == dat_entry.z_idx)
+        dat->z=val;
+      else if (counter == dat_entry.vs_idx)
+        dat->vs=val;
+      else if (counter == dat_entry.vp_idx)
+        dat->vp=val;
     p = strtok(NULL, delimiter);
     counter++;
- }
- return(0);
+  }
+  return(0);
 }
 
 
@@ -138,10 +131,11 @@ int _next_datfile(FILE *fp, dat_data_t &dat) {
 int _compare_double(double f1, double f2) {
   double precision = 0.00001;
   if (((f1 - precision) < f2) && ((f1 + precision) > f2)) {
-    return 1;
+    return 0; // good
     } else {
-      return 0;
+      return 1; // bad
   }
+}
 
 /* Usage function */
 void usage() {
@@ -179,11 +173,11 @@ int main(int argc, char* const argv[]) {
         int rc;
         int opt;
         char datfile[100]="";
-        dat_data_t dat_data;
+        dat_data_t dat;
 
 
         /* Parse options */
-        while ((opt = getopt(argc, argv, "f:z:h")) != -1) {
+        while ((opt = getopt(argc, argv, "df:z:h")) != -1) {
           switch (opt) {
           case 'f':
             strcpy(datfile, optarg);
@@ -200,6 +194,9 @@ int main(int argc, char* const argv[]) {
               usage();
               exit(0);
             }
+            break;
+          case 'd':
+            validate_debug=1;
             break;
           case 'h':
             usage();
@@ -228,7 +225,7 @@ int main(int argc, char* const argv[]) {
 	printf("Set model zmode successfully.\n");
 
         rc=_next_datfile(fp, &dat);
-        if(rc==0) {
+        while(rc==0) {
               pt.longitude = dat.x;
               pt.latitude = dat.y;
               pt.depth = dat.z;
@@ -249,19 +246,29 @@ int main(int argc, char* const argv[]) {
                 vx_getsurface(coor, coor_type, &surface);
                 pt.depth = surface - elev;
 
-                if(cvmhsgbn_debug) {
+                if(validate_debug) {
                   fprintf(stderr, "  calling vx_getsurface: surface is %f, initial elevation %f > depth(%f)\n",
                          surface, elev, pt.depth);
                 }
               }
 
 	      rc=cvmhsgbn_query(&pt, &ret, 1);
-              if(cvmhsgbn_debug) {fprintf(stderr, " >>>> with.. %lf %lf %lf\n\n",pt.longitude, pt.latitude, pt.depth); }
+              if(validate_debug) {fprintf(stderr, ">>>> with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
               if(rc == 0) {
-                printf("vs : %lf vp: %lf rho: %lf\n",ret.vs, ret.vp, ret.rho);
+                if(validate_debug) {
+                   printf("     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
+                }
+                if(_compare_double(ret.vs, dat.vs) ||
+                             _compare_double(ret.vp, dat.vp)) { 
+                   fprintf(stderr,"Mismatching -\n");
+                   fprintf(stderr,"%lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
+                   fprintf(stderr,"    vs: %lf vp:%lf\n",ret.vs, ret.vp);
+                   fprintf(stderr,"    dat_vs: %lf dat_vp: %lf\n\n",dat.vs, dat.vp);
+                }
                 } else {
                    printf("BAD: %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
               }
+          rc=_next_datfile(fp, &dat);
         }
 
 	assert(cvmhsgbn_finalize() == 0);
