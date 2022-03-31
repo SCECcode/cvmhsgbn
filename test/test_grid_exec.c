@@ -226,7 +226,7 @@ int test_vx_lite_cvmhsgbn_grid_offset()
 
   unlink(outfile);
 
-  return _sucess();
+  return _success();
 }
 
 int suite_grid_exec(const char *xmldir)

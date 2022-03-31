@@ -29,7 +29,7 @@ int _failure(char* estr) {
    if(estr) {
      fprintf(stderr,"ERROR: %s\n", estr);
    }
-   printf("FAIL\n);
+   printf("FAIL\n");
    return(1);
 }
 

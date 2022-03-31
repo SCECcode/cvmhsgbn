@@ -31,6 +31,9 @@ int MEI =1 ;
 int _debug=0;
 int cvmhsgbn_debug=0;
 
+float p0_NO_DATA_VALUE = -99999.0; // p0.NO_DATA_VALUE 
+//float p0_NO_DATA_VALUE = 0.0; // p0.NO_DATA_VALUE 
+int p0_ESIZE = 4; // p0.ESIZE
 
 /* Function declarations */
 void gctp();
@@ -46,7 +49,7 @@ vx_zmode_t vx_zmode = VX_ZMODE_ELEV; // default
 struct axis mr_a, hr_a, to_a;
 
 int pkey=0;
-struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
+// ?? struct property p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13;
 struct property p_vp63_basin; // p2
 struct property p_tag61_basin; // p9
 struct property p_vs63_basin; // p12 
@@ -472,8 +475,8 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       memcpy(&(entry->mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
       memcpy(&(entry->base), &babuffer[j], p_topo_dem.ESIZE);
       memcpy(&(entry->moho), &mobuffer[j], p_topo_dem.ESIZE);
-      if (((entry->topo - p0.NO_DATA_VALUE < 0.1) || 
-	   (entry->mtop - p0.NO_DATA_VALUE < 0.1))) {
+      if (((entry->topo - p0_NO_DATA_VALUE < 0.1) || 
+	   (entry->mtop - p0_NO_DATA_VALUE < 0.1))) {
 	do_bkg = True;
       }
     } else {
@@ -533,7 +536,7 @@ if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
 if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
 	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
-	memcpy(&(entry->provenance), &hrtbuffer[j], p0.ESIZE);
+	memcpy(&(entry->provenance), &hrtbuffer[j], p0_ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);
 	entry->data_src = VX_SRC_HR;
@@ -605,7 +608,7 @@ void vx_getvoxel(vx_voxel_t *voxel) {
 	voxel->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	voxel->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
 	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
-	memcpy(&(voxel->provenance), &hrtbuffer[j], p0.ESIZE);
+	memcpy(&(voxel->provenance), &hrtbuffer[j], p0_ESIZE);
 	memcpy(&(voxel->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
 	memcpy(&(voxel->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);	
       }
@@ -636,7 +639,7 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
   vx_entry_t entry;
   int do_bkg = False;
 
-  *surface = p0.NO_DATA_VALUE;
+  *surface = p0_NO_DATA_VALUE;
 
   entry.coor[0] = coor[0];
   entry.coor[1] = coor[1];
@@ -688,8 +691,8 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 
     {
       /* check for valid topo values */
-      if ((entry.topo - p0.NO_DATA_VALUE > 0.1) && 
-	  (entry.mtop - p0.NO_DATA_VALUE > 0.1)) {
+      if ((entry.topo - p0_NO_DATA_VALUE > 0.1) && 
+	  (entry.mtop - p0_NO_DATA_VALUE > 0.1)) {
 	
 	if (entry.topo > entry.mtop) {
 	  *surface = entry.mtop - ELEV_EPSILON;
@@ -702,7 +705,7 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	entry.coor[2] = *surface;
 	while (!flag) {
 	  if (num_iter > MAX_ITER_ELEV) {
-	    *surface = p0.NO_DATA_VALUE;
+	    *surface = p0_NO_DATA_VALUE;
 	    flag = 1;
 	  }
 	  num_iter = num_iter + 1;
@@ -732,7 +735,7 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
   }
 
   if (do_bkg) {
-    *surface = p0.NO_DATA_VALUE;
+    *surface = p0_NO_DATA_VALUE;
   }
 
   return(0);
@@ -748,7 +751,7 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
   vx_entry_t entry;
   int do_bkg = False;
 
-  *surface = p0.NO_DATA_VALUE;
+  *surface = p0_NO_DATA_VALUE;
 
   entry.coor[0] = coor[0];
   entry.coor[1] = coor[1];
@@ -799,8 +802,8 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
   if (!do_bkg) {
 
     /* check for valid topo values */
-    if ((entry.topo - p0.NO_DATA_VALUE > 0.1) && 
-	(entry.mtop - p0.NO_DATA_VALUE > 0.1)) {
+    if ((entry.topo - p0_NO_DATA_VALUE > 0.1) && 
+	(entry.mtop - p0_NO_DATA_VALUE > 0.1)) {
       if (entry.topo > entry.mtop) {
 	*surface = entry.mtop - ELEV_EPSILON;
       } else {
@@ -812,7 +815,7 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
       entry.coor[2] = *surface;
       while (!flag) {
 	if (num_iter > MAX_ITER_ELEV) {
-	  *surface = p0.NO_DATA_VALUE;
+	  *surface = p0_NO_DATA_VALUE;
 	  flag = 1;
 	}
 	num_iter = num_iter + 1;
@@ -839,7 +842,7 @@ void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
   }
 
   if (do_bkg) {
-    *surface = p0.NO_DATA_VALUE;
+    *surface = p0_NO_DATA_VALUE;
   }
 
   return;
@@ -1088,7 +1091,7 @@ double calc_rho(float vp, vx_src_t data_src)
 					    fl*0.000106)))));
     break;
   default:
-    rho = p0.NO_DATA_VALUE;
+    rho = p0_NO_DATA_VALUE;
     break;
   }
 
@@ -1101,16 +1104,16 @@ void vx_init_entry(vx_entry_t *entry) {
   int j;
 
   for(j = 0; j < 2; j++) {
-    entry->coor_utm[j] = p0.NO_DATA_VALUE;
-    entry->elev_cell[j] = p0.NO_DATA_VALUE;
-    entry->vel_cell[j] = p0.NO_DATA_VALUE;
+    entry->coor_utm[j] = p0_NO_DATA_VALUE;
+    entry->elev_cell[j] = p0_NO_DATA_VALUE;
+    entry->vel_cell[j] = p0_NO_DATA_VALUE;
   }
-  entry->vel_cell[2] = p0.NO_DATA_VALUE;
-  entry->coor_utm[2] = p0.NO_DATA_VALUE;
+  entry->vel_cell[2] = p0_NO_DATA_VALUE;
+  entry->coor_utm[2] = p0_NO_DATA_VALUE;
 
-  entry->topo = entry->mtop = entry->base = entry->moho = p0.NO_DATA_VALUE;
-  entry->provenance = p0.NO_DATA_VALUE;
-  entry->vp = entry->vs = entry->rho = p0.NO_DATA_VALUE;
+  entry->topo = entry->mtop = entry->base = entry->moho = p0_NO_DATA_VALUE;
+  entry->provenance = p0_NO_DATA_VALUE;
+  entry->vp = entry->vs = entry->rho = p0_NO_DATA_VALUE;
   entry->data_src = VX_SRC_NR;
 
   return;
@@ -1123,13 +1126,13 @@ void vx_init_voxel(vx_voxel_t *voxel) {
 
   // Initially set to no data
   for(j = 0; j < 2; j++) {
-    voxel->elev_cell[j] = p0.NO_DATA_VALUE;
-    voxel->vel_cell[j] = p0.NO_DATA_VALUE;
+    voxel->elev_cell[j] = p0_NO_DATA_VALUE;
+    voxel->vel_cell[j] = p0_NO_DATA_VALUE;
   }
-  voxel->vel_cell[2] = p0.NO_DATA_VALUE;
-  voxel->topo = voxel->mtop = voxel->base = voxel->moho = p0.NO_DATA_VALUE;
-  voxel->provenance = p0.NO_DATA_VALUE;
-  voxel->vp = voxel->vs = voxel->rho = p0.NO_DATA_VALUE;
+  voxel->vel_cell[2] = p0_NO_DATA_VALUE;
+  voxel->topo = voxel->mtop = voxel->base = voxel->moho = p0_NO_DATA_VALUE;
+  voxel->provenance = p0_NO_DATA_VALUE;
+  voxel->vp = voxel->vs = voxel->rho = p0_NO_DATA_VALUE;
 
   return;
 }

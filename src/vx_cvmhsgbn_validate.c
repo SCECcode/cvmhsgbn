@@ -77,7 +77,7 @@ FILE *_process_datfile(char *fname) {
 // X,Y,Z,tag61_basin,vp63_basin,vs63_basin
   while(p != NULL)
   {
-//    printf("'%s'\n", p);
+    if(validate_debug) { printf("'%s'\n", p); }
     if(strcmp(p,"X")==0)
       dat_entry.x_idx=counter;
     else if(strcmp(p,"Y")==0)
@@ -174,7 +174,9 @@ int main(int argc, char* const argv[]) {
         int opt;
         char datfile[100]="";
         dat_data_t dat;
-
+        int tcount=0;  // total entry
+        int mcount=0;  // real mismatch
+        int mmcount=0; // fake mismatch -- no data
 
         /* Parse options */
         while ((opt = getopt(argc, argv, "df:z:h")) != -1) {
@@ -226,6 +228,7 @@ int main(int argc, char* const argv[]) {
 
         rc=_next_datfile(fp, &dat);
         while(rc==0) {
+              tcount++;
               pt.longitude = dat.x;
               pt.latitude = dat.y;
               pt.depth = dat.z;
@@ -247,7 +250,7 @@ int main(int argc, char* const argv[]) {
                 pt.depth = surface - elev;
 
                 if(validate_debug) {
-                  fprintf(stderr, "  calling vx_getsurface: surface is %f, initial elevation %f > depth(%f)\n",
+                  fprintf(stderr, "  calling vx_getsurface: surface is %f, elev %f > depth(%f)\n",
                          surface, elev, pt.depth);
                 }
               }
@@ -260,10 +263,20 @@ int main(int argc, char* const argv[]) {
                 }
                 if(_compare_double(ret.vs, dat.vs) ||
                              _compare_double(ret.vp, dat.vp)) { 
+
+                   if(_compare_double(ret.vs, -1.0) ||
+                      _compare_double(ret.vp, -1.0) ||
+                      _compare_double(dat.vs, -99999.0) ||
+                      _compare_double(dat.vp, -99999.0)) {
+                  
                    fprintf(stderr,"Mismatching -\n");
                    fprintf(stderr,"%lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
                    fprintf(stderr,"    vs: %lf vp:%lf\n",ret.vs, ret.vp);
                    fprintf(stderr,"    dat_vs: %lf dat_vp: %lf\n\n",dat.vs, dat.vp);
+                   mcount++;
+                   } else {
+                     mmcount++;
+                   }
                 }
                 } else {
                    printf("BAD: %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
@@ -271,8 +284,10 @@ int main(int argc, char* const argv[]) {
           rc=_next_datfile(fp, &dat);
         }
 
+        fprintf(stderr,"VALIDATE: %d mismatch out of %d \n", mcount, tcount);
 	assert(cvmhsgbn_finalize() == 0);
 	printf("Model closed successfully.\n");
+
 
         fclose(fp);
 

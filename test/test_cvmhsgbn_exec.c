@@ -32,7 +32,7 @@ int test_setup()
   }
 
   if (test_assert_int(model_finalize(), 0) != 0) {
-    reurn _failure("model_finalize failed");
+    return _failure("model_finalize failed");
   }
 
   return _success();
@@ -110,7 +110,7 @@ int test_query_by_depth()
   if ( test_assert_double(ret.vs, 2246.794678) ||
        test_assert_double(ret.vp, 3966.294189) ||
        test_assert_double(ret.rho, 2388.608443) ) {
-     return _failure("unmatched result"):
+     return _failure("unmatched result");
      } else {
        return _success();
   }
@@ -158,7 +158,7 @@ int test_query_by_elevation()
   if ( test_assert_double(ret.vs, 2246.794678) ||
        test_assert_double(ret.vp, 3966.294189) ||
        test_assert_double(ret.rho, 2388.608443) ) {
-     return _failure("unmatched result"):
+     return _failure("unmatched result");
      } else {
        return _success();
   }
@@ -187,7 +187,7 @@ int test_query_points_by_elevation()
   sprintf(infile, "%s/%s", currentdir, "./inputs/test_latlons_ucvm_ge.txt");
   sprintf(outfile, "%s/%s", currentdir,
           "test_latlons_ucvm_ge.out");
-  sprintf(reffile, "%s/X%s", currentdir,
+  sprintf(reffile, "%s/%s", currentdir,
           "./ref/test_latlons_ucvm_ge.ref");
 
   if (test_assert_file_exist(infile) != 0) {

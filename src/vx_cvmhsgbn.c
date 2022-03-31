@@ -133,7 +133,7 @@ int main(int argc, char* const argv[]) {
 	      rc=cvmhsgbn_query(&pt, &ret, 1);
               if(cvmhsgbn_debug) {fprintf(stderr, " >>>> with.. %lf %lf %lf\n\n",pt.longitude, pt.latitude, pt.depth); }
               if(rc == 0) {
-                printf("vs : %lf vp: %lf rho :%lf\n",ret.vs, ret.vp, ret.rho);
+                printf("vs: %lf vp: %lf rho: %lf\n",ret.vs, ret.vp, ret.rho);
                 } else {
                    printf("BAD: %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
               }
