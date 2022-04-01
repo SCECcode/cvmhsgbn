@@ -859,7 +859,7 @@ void vx_voxel_at_coord(vx_entry_t *entry, vx_voxel_t *voxel)
   double gcoor[3]; // coord of point wrt volume
   float gcoor_min[3]; // UTM coord of volume origin
   float step[3];
-  int esize;
+  int esize=p0_ESIZE;
 
   vx_init_voxel(voxel);
 
