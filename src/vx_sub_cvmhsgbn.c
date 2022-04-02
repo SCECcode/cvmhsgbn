@@ -30,6 +30,7 @@ int MEI =1 ;
 
 int _debug=0;
 int cvmhsgbn_debug=0;
+int surface_nodata_count=0; // tracing how many NO_DATA_VALUE
 
 float p0_NO_DATA_VALUE = -99999.0; // p0.NO_DATA_VALUE 
 //float p0_NO_DATA_VALUE = 0.0; // p0.NO_DATA_VALUE 
@@ -489,6 +490,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       vx_getsurface(entry->coor, entry->coor_type, &surface);
       if(cvmhsgbn_debug) { fprintf(stderr," cvmh surface -- %lf\n", surface); }
       if (surface < -90000.0) {
+        surface_nodata_count++;
 	return(1);
       }
       switch (vx_zmode) {
