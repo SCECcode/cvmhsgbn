@@ -201,8 +201,6 @@ int main(int argc, char* const argv[]) {
               zmode = UCVM_COORD_GEO_DEPTH;
             } else if (strcasecmp(optarg, "elev") == 0) {
               zmode = UCVM_COORD_GEO_ELEV;
-            } else if (strcasecmp(optarg, "off") == 0) {
-              zmode = UCVM_COORD_GEO_ELEVOFF;
             } else {
               fprintf(stderr, "VALIDATE_UCVM: Invalid coord type %s", optarg);
               usage();

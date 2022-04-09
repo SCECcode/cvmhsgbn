@@ -116,8 +116,6 @@ even if ucvm_query set elevation mode, still need to run as depth
           if(cvmhsgbn_ucvm_debug) fprintf(stderr,"calling cvmhsgbn_setparam >>  elevation\n");
           break;
         default:
-          cvmhsgbn_zmode = VX_ZMODE_ELEVOFF;
-          if(cvmhsgbn_ucvm_debug) fprintf(stderr,"calling cvmhsgbn_setparam >>  use offset\n");
           break;
        }
        vx_setzmode(cvmhsgbn_zmode);

@@ -519,10 +519,6 @@ if(_debug) fprintf(stderr," ===  NEW >>> depth %lf surface %lf utm2 %lf coor %lf
 	entry->coor[2] = elev;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
-      case VX_ZMODE_ELEVOFF:
-	entry->coor[2] = surface + elev;
-	entry->coor_utm[2] = entry->coor[2];
-	break;
       default:
 	return(1);
 	break;

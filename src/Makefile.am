@@ -1,8 +1,8 @@
 # Autoconf/automake file
 
-lib_LIBRARIES = libvxapi.a libvxapi_cvmhsgbn.a libcvmhsgbn.a 
-bin_PROGRAMS = vx vx_lite vx_slice vx_lite_cvmhsgbn vx_cvmhsgbn vx_cvmhsgbn_validate vx_cvmhsgbn_lite_validate run_vx.sh run_vx_lite.sh
-include_HEADERS = vx_sub.h
+lib_LIBRARIES = libvxapi_cvmhsgbn.a libcvmhsgbn.a 
+bin_PROGRAMS = vx_lite_cvmhsgbn vx_cvmhsgbn vx_cvmhsgbn_validate vx_cvmhsgbn_lite_validate 
+include_HEADERS = vx_sub_cvmhsgbn.h
 
 # General compiler/linker flags
 AM_CFLAGS = ${CFLAGS} -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
@@ -11,17 +11,12 @@ AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgctpc
 
 # Dist sources
 libcvmhsgbn_a_SOURCES = vx_sub_cvmhsgbn.c vx_io.c 
-libvxapi_a_SOURCES = vx_sub.c scec1d.c vs30_gtl.c vx_io.c utils.c 
 vx_lite_cvmhsgbn_SOURCES = vx_lite_cvmhsgbn.c
 vx_cvmhsgbn_SOURCES = vx_cvmhsgbn.c
 vx_cvmhsgbn_validate_SOURCES = vx_cvmhsgbn_validate.c
 vx_cvmhsgbn_lite_validate_SOURCES = vx_cvmhsgbn_lite_validate.c
-vx_slice_SOURCES = vx_slice.c
-vx_lite_SOURCES = vx_lite.c
-run_vx_sh_SOURCES = run_vx.sh
-run_vx_lite_sh_SOURCES = run_vx_lite.sh
 
-TARGETS = vx_lite_cvmhsgbn vx_cvmhsgbn vx_cvmhsgbn_validate vx_cvmhsgbn_lite_validate libvxapi_cvmhsgbn.a libvxapi.a libcvmhsgbn.a libcvmhsgbn.so
+TARGETS = vx_lite_cvmhsgbn vx_cvmhsgbn vx_cvmhsgbn_validate vx_cvmhsgbn_lite_validate libvxapi_cvmhsgbn.a  libcvmhsgbn.a libcvmhsgbn.so
 
 all: $(TARGETS)
 
@@ -41,9 +36,6 @@ cvmhsgbn_static.o: cvmhsgbn.c
 
 libcvmhsgbn.so: vx_sub_cvmhsgbn.o vx_io.o utils.o cvmhsgbn.o
 	$(CC) -shared $(AM_CFLAGS) -o libcvmhsgbn.so $^ $(AM_LDFLAGS)
-
-libvxapi.a: vx_sub.o scec1d.o vs30_gtl.o vx_io.o utils.o *.h
-	$(AR) rcs $@ $^
 
 libvxapi_cvmhsgbn.a: vx_sub_cvmhsgbn.o vx_io.o utils.o *.h
 	$(AR) rcs $@ $^
@@ -77,16 +69,6 @@ vx_cvmhsgbn : vx_cvmhsgbn.o libcvmhsgbn.a
 
 vx: vx.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
-vx_lite: vx_lite.o libvxapi.a
-	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
-vx_slice: vx_slice.o libvxapi.a
-	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
-run_vx.sh:
-run_vx_lite.sh:
-
 
 clean:
 	rm -rf $(TARGETS)
