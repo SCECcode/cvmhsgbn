@@ -1,14 +1,14 @@
 /*
- * @file vx_cvmhsgbn_validate.c
- * @brief test with a full set of validation points in depth
+ * @file vx_cvmhsgbn_lite_validate.c
+ * @brief test with a full set of validation points
  * @author - SCEC
  * @version 1.0
  *
- * Tests the CVMHLABN library by loading it and executing the code as
- * UCVM would.
+ * Tests the CVMHSGBN as vx_lite_cvmhsgbn would and recreate a
+ * new input dataset that is depth based
  *
  *
- *  ./vx_cvmhsgbn_validate -f validate.out
+ *  ./vx_cvmhsgbn_lite_validate -m modeldir -f CVMHB-San-Gabriel-Basin.dat
  *
  */
 
@@ -17,7 +17,8 @@
 #include <unistd.h>
 #include <assert.h>
 #include <string.h>
-#include "cvmhsgbn.h"
+#include <math.h>
+#include "vx_sub_cvmhsgbn.h"
 
 int validate_debug = 0;
 
@@ -31,7 +32,6 @@ typedef struct dat_entry_t
   int vp_idx;
   int vs_idx;
   int rho_idx;
-  int depth_idx;
 } dat_entry_t;
 
 typedef struct dat_data_t 
@@ -42,7 +42,6 @@ typedef struct dat_data_t
   double vp;
   double vs;
   double rho;
-  double depth;
 } dat_data_t;
 
 dat_entry_t dat_entry;
@@ -57,12 +56,12 @@ FILE *_process_datfile(char *fname) {
   char dat_line[1028];
   FILE *fp = fopen(fname, "r");
   if (fp == NULL) {
-    fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to open the validation data file %s\n", fname);
+    fprintf(stderr,"VALIDATE_LITE: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
   /* read the title line */
   if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to extract validation data file %s\n", fname);
+    fprintf(stderr,"VALIDATE_LITE: FAIL: Unable to extract validation data file %s\n", fname);
     fclose(fp);
     exit(1);
   }
@@ -77,10 +76,10 @@ FILE *_process_datfile(char *fname) {
   char *p = strtok(dat_line, delimiter);
   int counter=0;
 
-// X,Y,Z,depth,vp63_basin,vs63_basin
+// X,Y,Z,tag61_basin,vp63_basin,vs63_basin
   while(p != NULL)
   {
-    if(validate_debug) { printf("VALIDATE_UCVM:'%s'\n", p); }
+    if(validate_debug) { printf("VALIDATE_LITE:'%s'\n", p); }
     if(strcmp(p,"X")==0)
       dat_entry.x_idx=counter;
     else if(strcmp(p,"Y")==0)
@@ -91,8 +90,6 @@ FILE *_process_datfile(char *fname) {
       dat_entry.vp_idx=counter;
     else if(strcmp(p,"vs63_basin")==0)
       dat_entry.vs_idx=counter;
-    else if(strcmp(p,"depth")==0)
-      dat_entry.depth_idx=counter;
     p = strtok(NULL, delimiter);
     counter++;
   }
@@ -124,8 +121,6 @@ int _next_datfile(FILE *fp, dat_data_t *dat) {
         dat->vs=val;
       else if (counter == dat_entry.vp_idx)
         dat->vp=val;
-      else if (counter == dat_entry.depth_idx)
-        dat->depth=val;
     p = strtok(NULL, delimiter);
     counter++;
   }
@@ -146,37 +141,35 @@ int _compare_double(double f1, double f2) {
 
 /* Usage function */
 void usage() {
-  printf("     vx_cvmhsgbn_valiate - (c) SCEC\n");
+  printf("     vx_cvmhsgbn_lite_valiate - (c) SCEC\n");
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
   printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_cvmhsgbn_validate [-d] [-z dep/elev/off] -f file.dat\n\n");
+  printf("\tusage: vx_cvmhsgbn_lite_validate [-d] -m modeldir -f file.dat\n\n");
   printf("Flags:\n");
   printf("\t-f point.dat\n\n");
   printf("\t-d enable debug/verbose mode\n\n");
-  printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
-  printf("Output format is:\n");
-  printf("\tvp vs rho\n\n");
+  printf("\t-m path to cvmhsgbn model directory \n\n");
   exit (0);
 }
 
 extern char *optarg;
 extern int optind, opterr, optopt;
 
-/**
- * Initializes CVMHLABN in standalone mode as ucvm plugin 
- * api.
- *
- * @param argc The number of arguments.
- * @param argv The argument strings.
- * @return A zero value indicating success.
- */
 int main(int argc, char* const argv[]) {
 
 	// Declare the structures.
-	cvmhsgbn_point_t pt;
-	cvmhsgbn_properties_t ret;
-        int zmode=UCVM_COORD_GEO_DEPTH;
+        vx_entry_t entry;
+        char modeldir[500];
+        FILE *ofp = fopen("validate_lite_bad.out", "w");
+        FILE *oofp = fopen("validate_lite_foo.out", "w");
+
+        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
+
+        vx_zmode_t zmode=VX_ZMODE_ELEV;
+        strcpy(modeldir,".");
+
         int rc;
         int opt;
         char datfile[100]="";
@@ -185,29 +178,15 @@ int main(int argc, char* const argv[]) {
         int mcount=0;  // real mismatch
         int mmcount=0; // fake mismatch -- no data
         int okcount=0;
-        FILE *ofp= fopen("validate_ucvm_bad.out","w");
-        FILE *oofp= fopen("validate_ucvm_other.out","w");
-        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
-        fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
 
         /* Parse options */
-        while ((opt = getopt(argc, argv, "df:z:h")) != -1) {
+        while ((opt = getopt(argc, argv, "df:m:h")) != -1) {
           switch (opt) {
           case 'f':
             strcpy(datfile, optarg);
             break;
-          case 'z':
-            if (strcasecmp(optarg, "dep") == 0) {
-              zmode = UCVM_COORD_GEO_DEPTH;
-            } else if (strcasecmp(optarg, "elev") == 0) {
-              zmode = UCVM_COORD_GEO_ELEV;
-            } else if (strcasecmp(optarg, "off") == 0) {
-              zmode = UCVM_COORD_GEO_ELEVOFF;
-            } else {
-              fprintf(stderr, "VALIDATE_UCVM: Invalid coord type %s", optarg);
-              usage();
-              exit(0);
-            }
+          case 'm':
+            strcpy(modeldir, optarg);
             break;
           case 'd':
             validate_debug=1;
@@ -225,73 +204,70 @@ int main(int argc, char* const argv[]) {
       
         FILE *fp=_process_datfile(datfile);
 
-	// Initialize the model. 
-        // try to use Use UCVM_INSTALL_PATH
-        char *envstr=getenv("UCVM_INSTALL_PATH");
-        if(envstr != NULL) {
-	   assert(cvmhsgbn_init(envstr, "cvmhsgbn") == 0);
-           } else {
-	     assert(cvmhsgbn_init("..", "cvmhsgbn") == 0);
+        /* Perform setup */
+        if (vx_setup(modeldir) != 0) {
+          fprintf(stderr, "Failed to init vx\n");
+          exit(1);
         }
-	printf("VALIDATE_UCVM: Loaded the model successfully.\n");
 
-        assert(cvmhsgbn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
-	printf("VALIDATE_UCVM: Set model zmode successfully.\n");
+        /* Set zmode */
+        vx_setzmode(zmode);
 
         rc=_next_datfile(fp, &dat);
         while(rc==0) {
               tcount++;
-              pt.longitude = dat.x;
-              pt.latitude = dat.y;
-              pt.depth = dat.depth;
+              entry.coor[0] = dat.x;
+              entry.coor[1] = dat.y;
+              entry.coor[2] = dat.z;
 
-	      rc=cvmhsgbn_query(&pt, &ret, 1); // rc 0 is okay
+              /* In case we got anything like degrees */
+              if ((entry.coor[0]<360.) && (fabs(entry.coor[1])<90)) {
+                 entry.coor_type = VX_COORD_GEO;
+                 } else {
+                    entry.coor_type = VX_COORD_UTM;
+               }
 
-              if(validate_debug) {fprintf(stderr, "VALIDATE_UCVM:   with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
-              if(rc == 0) {
+               vx_getcoord(&entry);
 
+               if(validate_debug) fprintf(stderr, "VALIDATE_LITE:   with.. %lf %lf %lf\n", entry.coor[0],entry.coor[1],entry.coor[2]);
+
+              if(1) { // sometimes rcc could be 1 because it can not find right surface or of area or of area
                 if(validate_debug) {
-                   fprintf(stderr,"VALIDATE_UCVM:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
+                   fprintf(stderr,"VALIDATE_LITE:     vs:%lf vp:%lf rho:%lf\n\n",entry.vs, entry.vp, entry.rho);
                 }
 
                 // is result matching ?
-                if(_compare_double(ret.vs, dat.vs) ||
-                             _compare_double(ret.vp, dat.vp)) { 
-
+                if(_compare_double(entry.vs, dat.vs) ||
+                             _compare_double(entry.vp, dat.vp)) { 
 /*** special case.. only in lr
-
-VALIDATE_UCVM:356000.000000,3754000.000000,-100.000114
-VALIDATE_UCVM: dat.vs(-99999.000000),dat.vp(1480.000000)
-VALIDATE_UCVM:   ret vs:(-1.000000) ret vp:(-1.000000)
-
+VALIDATE_LITE:356000.000000,3754000.000000,-100.000114
+VALIDATE_LITE: dat.vs(-99999.000000),dat.vp(1480.000000)
+VALIDATE_LITE:   ret vs:(-1.000000) ret vp:(-1.000000)
 **/
-                     // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (ret.vs == -1, ret.vp == -1) 
-                     if (!_compare_double(ret.vs, -1.0) && !_compare_double(ret.vp, -1.0) &&
+                     // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (entry.vs == -1, entry.vp == -1) 
+                     if (!_compare_double(entry.vs, -1.0) && !_compare_double(entry.vp, -1.0) &&
                               !_compare_double(dat.vs, -99999.0) && !_compare_double(dat.vp, -99999.0)) {
                        mmcount++;  // just -1 vs -99999
-                       fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                        } else {
-                         fprintf(stderr,"\nVALIDATE_UCVM:Mismatching -\n");
-                         fprintf(stderr,"VALIDATE_UCVM:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                         fprintf(stderr,"VALIDATE_UCVM: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                         fprintf(stderr,"VALIDATE_UCVM:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
+                         fprintf(stderr,"\nVALIDATE_LITE:Mismatching -\n");
+                         fprintf(stderr,"VALIDATE_LITE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                         fprintf(stderr,"VALIDATE_LITE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                         fprintf(stderr,"VALIDATE_LITE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
                          mcount++;  // real mismatch
-                         fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                       }
+                      fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
                     } else {
                          okcount++;
+                         fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
                   }
-                } else { // rc=1 
-                   if(validate_debug) printf("VALIDATE_UCVM: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
               }
           rc=_next_datfile(fp, &dat);
         }
 
-        fprintf(stderr,"VALIDATE_UCVM: %d mismatch out of %d \n", mcount, tcount);
-        fprintf(stderr,"VALIDATE_UCVM: good with matching values(%d) mmcount(%d) \n",okcount, mmcount );
-	assert(cvmhsgbn_finalize() == 0);
-	printf("VALIDATE_UCVM:Model closed successfully.\n");
-
+        fprintf(stderr,"VALIDATE_LITE: %d mismatch out of %d (mmcount %d)\n", mcount, tcount,mmcount);
+        fprintf(stderr,"VALIDATE_LITE: good with matching values(%d) \n",okcount );
+ 
+       // vx_cleanup();
 
         fclose(fp);
         fclose(ofp);

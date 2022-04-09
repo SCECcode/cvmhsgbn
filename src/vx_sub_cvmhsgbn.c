@@ -26,7 +26,8 @@ int MEI =1 ;
 
 /* Topography filtering DEPRECATED */
 #define ELEV_EPSILON 0.01
-#define MAX_ITER_ELEV 4
+
+float HighRes_z=0.0;
 
 int _debug=0;
 int cvmhsgbn_debug=0;
@@ -90,9 +91,6 @@ int vx_setup(const char *data_dir)
   hrtbuffer = NULL;
   hrvsbuffer = NULL;
 
-  char LR_PAR[CMLEN];
-  sprintf(LR_PAR, "%s/CVM_LR.vo", data_dir);
-  
   char HR_PAR[CMLEN];
   sprintf(HR_PAR, "%s/CVMHB-San-Gabriel-Basin.vo", data_dir);
   
@@ -116,6 +114,8 @@ int vx_setup(const char *data_dir)
   vx_io_getvec("AXIS_MIN",hr_a.MIN);
   vx_io_getvec("AXIS_MAX",hr_a.MAX);
   vx_io_getdim("AXIS_N ",hr_a.N);
+
+  HighRes_z=hr_a.O[2]; // deepest part of volume
 
   if(_debug) {
     fprintf(stderr," From:\n");
@@ -365,14 +365,14 @@ int vx_cleanup()
     return(1);
   }
 
-  free(hrbuffer);
-  free(tobuffer);
-  free(mobuffer);
-  free(babuffer);
-  free(mtopbuffer);
+  if(hrbuffer) free(hrbuffer);
+  if(tobuffer) free(tobuffer);
+  if(mobuffer) free(mobuffer);
+  if(babuffer) free(babuffer);
+  if(mtopbuffer) free(mtopbuffer);
 
-  free(hrtbuffer);
-  free(hrvsbuffer);
+  if(hrtbuffer) free(hrtbuffer);
+  if(hrvsbuffer) free(hrvsbuffer);
 
   vx_zmode = VX_ZMODE_ELEV;
 
@@ -398,6 +398,9 @@ int vx_getcoord(vx_entry_t *entry) {
    disable advanced features like depth/offset query modes.
 */ 
 int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
+
+if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enhanced);
+
   int j=0;
   double SP[2],SPUTM[2];
   int gcoor[3];
@@ -453,22 +456,22 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
     break;
   }
 
-  if(cvmhsgbn_debug) { fprintf(stderr," UTM -> %lf %lf %lf\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
-}
+  if(_debug) fprintf(stderr," ENTRY start -> %lf %lf %lf\n", entry->coor[0], entry->coor[1], entry->coor[2]);
+  if(_debug) fprintf(stderr," UTM -> %lf %lf %lf\n", entry->coor_utm[0], entry->coor_utm[1], entry->coor_utm[2]);
 
   /* Now we have UTM Zone 11 */
   /*** Prevent all to obvious bad coordinates from being displayed */
   if (entry->coor_utm[1] < 10000000) {
-     
-    // we start with the elevations; the voxet does not have a vertical 
+    
+    // we start with the elevations; the voxet does not have a vertical
     // dimension
     gcoor[0]=round((entry->coor_utm[0]-to_a.O[0])/step_to[0]);
     gcoor[1]=round((entry->coor_utm[1]-to_a.O[1])/step_to[1]);
     gcoor[2]=0;
-    
+
     //check if inside
     if(gcoor[0]>=0&&gcoor[1]>=0&&
-       gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
+       gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {
       entry->elev_cell[0]= to_a.O[0]+gcoor[0]*step_to[0];
       entry->elev_cell[1]= to_a.O[1]+gcoor[1]*step_to[1];
       j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
@@ -476,28 +479,44 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
       memcpy(&(entry->mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
       memcpy(&(entry->base), &babuffer[j], p_topo_dem.ESIZE);
       memcpy(&(entry->moho), &mobuffer[j], p_topo_dem.ESIZE);
-      if (((entry->topo - p0_NO_DATA_VALUE < 0.1) || 
-	   (entry->mtop - p0_NO_DATA_VALUE < 0.1))) {
-	do_bkg = True;
+      if (((entry->topo - p0_NO_DATA_VALUE < 0.1) ||
+           (entry->mtop - p0_NO_DATA_VALUE < 0.1))) {
+        do_bkg = True;
       }
     } else {
       do_bkg = True;
     }
 
     /* Convert depth/offset Z coordinate to elevation */
-    if (enhanced == True) {
-      elev = entry->coor_utm[2];
+    if(enhanced == True) {
+
       vx_getsurface(entry->coor, entry->coor_type, &surface);
-      if(cvmhsgbn_debug) { fprintf(stderr," cvmh surface -- %lf\n", surface); }
+      if(cvmhsgbn_debug) { fprintf(stderr," FOUND cvmh surface -- %lf\n", surface); }
       if (surface < -90000.0) {
         surface_nodata_count++;
 	return(1);
       }
+
+if(_debug) fprintf(stderr,"!!! ===> reorganize to query the backend by elevation only...!!!\n");
+if(_debug) fprintf(stderr," === PRE >>> surface %lf utm2 %lf coor2 %lf \n", surface, entry->coor_utm[2], entry->coor[2]);
+
+      if(vx_zmode == VX_ZMODE_ELEV) {
+          elev = entry->coor_utm[2];
+          depth = surface - elev;
+      }
+      if(vx_zmode == VX_ZMODE_DEPTH) {
+           depth = entry->coor_utm[2];
+           elev = surface - entry->coor_utm[2];
+      }
+
+if(_debug) fprintf(stderr," ===  NEW >>> depth %lf surface %lf utm2 %lf coor %lf \n", depth, surface, entry->coor_utm[2], entry->coor[2]);
+
       switch (vx_zmode) {
       case VX_ZMODE_ELEV:
+        // default case
 	break;
       case VX_ZMODE_DEPTH:
-	entry->coor[2] = surface - elev;
+	entry->coor[2] = elev;
 	entry->coor_utm[2] = entry->coor[2];
 	break;
       case VX_ZMODE_ELEVOFF:
@@ -508,7 +527,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 	return(1);
 	break;
       }
-      depth = surface - entry->coor_utm[2];
+if(_debug) fprintf(stderr," ===FINAL: before calling >>> depth %lf surface %lf utm2 %lf coor2 %lf \n", depth, surface, entry->coor_utm[2], entry->coor[2]);
     }
 
     if(cvmhsgbn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
@@ -541,8 +560,15 @@ if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cel
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0_ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
 	memcpy(&(entry->vs), &hrvsbuffer[j], p_vp63_basin.ESIZE);
-	entry->data_src = VX_SRC_HR;
-if(cvmhsgbn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+
+        if(entry->vs == -99999.0 &&  entry->vp == -99999.0) {
+if(cvmhsgbn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+         }
+         entry->data_src = VX_SRC_HR;
+         entry->depth = surface - entry->coor_utm[2];
+
+if(_debug) fprintf(stderr," === Woohoo depth(%lf) \n", entry->depth);
+if(cvmhsgbn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
         do_bkg = True;
@@ -567,6 +593,9 @@ if(cvmhsgbn_debug) { fprintf(stderr,"  >Looking DONE(In HR)>>>>>> j(%d) gcoor(%d
 
   /* Restore original input coords */
   memcpy(entry->coor, incoor, sizeof(double) * 3);
+
+if(cvmhsgbn_debug) fprintf(stderr,"DONE --- vx_getcoord_private\n");
+
   return(0);
 }
 
@@ -635,6 +664,7 @@ void vx_getsurface(double *coor, vx_coord_t coor_type, float *surface)
 /* Private function for querying elevation of free surface at point 'coor'.  */
 int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 {
+if(cvmhsgbn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
   int gcoor[3];
   double SP[2],SPUTM[2];
   int j;
@@ -682,6 +712,9 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
   /* check if inside topo volume */
   if(gcoor[0]>=0&&gcoor[1]>=0&&
      gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
+
+if(cvmhsgbn_debug) fprintf(stderr," SURFACE: in topo gcoor(%d,%d,%d)\n",gcoor[0],gcoor[1],gcoor[2]);
+
     j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
     memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
     memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
@@ -706,27 +739,36 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 	int num_iter = 0;
 	entry.coor[2] = *surface;
 	while (!flag) {
-	  if (num_iter > MAX_ITER_ELEV) {
-	    *surface = p0_NO_DATA_VALUE;
-	    flag = 1;
-	  }
+if(cvmhsgbn_debug) fprintf(stderr," SURFACE: (%d)LOOPING in here %lf\n", num_iter,entry.coor[2]);
+
 	  num_iter = num_iter + 1;
 	  vx_getcoord_private(&entry, False);
+
+// go down to see where the actual surface for this point is
+
 	  if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
-	    switch (entry.data_src) {
-	    case VX_SRC_HR:
-	      entry.coor[2] -= fabs(step_hr[2]);
-	      break;
-	    default:
-	      do_bkg = True;
-	      flag = 1;
-	      break;
-	    }
+            if( *surface < HighRes_z ) {
+	      *surface = p0_NO_DATA_VALUE;
+              flag=1;
+if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: HIT the bottom set to NO_DATA_VALUE\n");
+              } else { 
+	        switch (entry.data_src) {
+	        case VX_SRC_HR:
+	          entry.coor[2] -= fabs(step_hr[2]);
+	          break;
+	        default:
+	          do_bkg = True;
+	          flag = 1;
+	          break;
+	        }
+          }
 	  } else {
 	    *surface = entry.coor[2];
 	    flag = 1;
 	  }
+if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: LOOPING checked %lf\n", entry.coor[2]);
 	}
+if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: LOOPING is over %lf\n", entry.coor[2]);
       } else {
 	do_bkg = True;
       }
@@ -738,117 +780,13 @@ int vx_getsurface_private(double *coor, vx_coord_t coor_type, float *surface)
 
   if (do_bkg) {
     *surface = p0_NO_DATA_VALUE;
+if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: do_bkg set to NO_DATA_VALUE\n");
   }
+if(_debug)  fprintf(stderr,"DONE -- SURFACE: vx_getsurface_private surface found=%lf\n", *surface);
 
   return(0);
 }
 
-
-/* Return mtop at coordinates 'coor' in 'surface' */
-void vx_model_top(double *coor, vx_coord_t coor_type, float *surface)
-{
-  int gcoor[3];
-  double SP[2],SPUTM[2];
-  int j;
-  vx_entry_t entry;
-  int do_bkg = False;
-
-  *surface = p0_NO_DATA_VALUE;
-
-  entry.coor[0] = coor[0];
-  entry.coor[1] = coor[1];
-  entry.coor[2] = 0.0;
-  entry.coor_type = coor_type;
-
-  // Initialize entry structure
-  vx_init_entry(&entry);
-
-  switch (entry.coor_type) {
-  case VX_COORD_GEO:
-    
-    SP[0]=entry.coor[0];
-    SP[1]=entry.coor[1];
-    
-    gctp(SP,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
-	 SPUTM,&outsys,&outzone,inparm,&outunit,&outdatum,
-	 file27, file83,&iflg);
-    
-    entry.coor_utm[0]=SPUTM[0];
-    entry.coor_utm[1]=SPUTM[1];
-    entry.coor_utm[2]=entry.coor[2];
-    break;
-  case VX_COORD_UTM:
-    entry.coor_utm[0]=entry.coor[0];
-    entry.coor_utm[1]=entry.coor[1];
-    entry.coor_utm[2]=entry.coor[2];
-    break;
-  default:
-    return;
-    break;
-  }
-
-  gcoor[0]=round((entry.coor_utm[0]-to_a.O[0])/step_to[0]);
-  gcoor[1]=round((entry.coor_utm[1]-to_a.O[1])/step_to[1]);
-  gcoor[2]=0;
-    
-  /* check if inside topo volume */
-  if(gcoor[0]>=0&&gcoor[1]>=0&&
-     gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
-    j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
-    memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
-    memcpy(&(entry.mtop), &mtopbuffer[j], p_topo_dem.ESIZE);
-  } else {
-    do_bkg = True;
-  }
-
-  if (!do_bkg) {
-
-    /* check for valid topo values */
-    if ((entry.topo - p0_NO_DATA_VALUE > 0.1) && 
-	(entry.mtop - p0_NO_DATA_VALUE > 0.1)) {
-      if (entry.topo > entry.mtop) {
-	*surface = entry.mtop - ELEV_EPSILON;
-      } else {
-	*surface = entry.topo - ELEV_EPSILON;
-      }
-      
-      int flag = 0;
-      int num_iter = 0;
-      entry.coor[2] = *surface;
-      while (!flag) {
-	if (num_iter > MAX_ITER_ELEV) {
-	  *surface = p0_NO_DATA_VALUE;
-	  flag = 1;
-	}
-	num_iter = num_iter + 1;
-	vx_getcoord_private(&entry, False);
-	if ((entry.vp < 0.0) || (entry.vs < 0.0)) {
-	  switch (entry.data_src) {
-	  case VX_SRC_HR:
-	    entry.coor[2] -= fabs(step_hr[2]);
-	    break;
-	  default:
-	    do_bkg = True;
-	    flag = 1;
-	    break;
-	  }
-	} else {
-	  *surface = entry.coor[2];
-	  flag = 1;
-	}
-      }
-      
-    } else {
-      do_bkg = True;
-    }
-  }
-
-  if (do_bkg) {
-    *surface = p0_NO_DATA_VALUE;
-  }
-
-  return;
-}
 
 /* Return the voxel 'voxel' that lies precisely at the coord/model
    specified in 'entry'. If point lies outside of volume, the returned
@@ -1071,7 +1009,6 @@ double calc_rho(float vp, vx_src_t data_src)
   /* Compute rho */
   switch (data_src) {
   case VX_SRC_HR:
-  case VX_SRC_LR:
     /*** Density should be at least 1000 ***/
     if (vp!=1480) {
       if (vp>744.) {
@@ -1138,4 +1075,3 @@ void vx_init_voxel(vx_voxel_t *voxel) {
 
   return;
 }
-
