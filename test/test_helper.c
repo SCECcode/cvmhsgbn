@@ -221,7 +221,7 @@ int runCVMHSGBN(const char *bindir, const char *cvmdir,
     return(1);
   }
 
-  int zmode = UCVM_COORD_GEO_ELEVOFF;
+  int zmode = UCVM_COORD_GEO_DEPTH;
   switch (mode) {
     case MODE_ELEVATION:
       zmode = UCVM_COORD_GEO_ELEV;

@@ -19,7 +19,7 @@
 #include "test_helper.h"
 #include "test_vx_lite_cvmhsgbn_exec.h"
 
-int VX_LITE_TESTS=3;
+int VX_LITE_TESTS=2;
 
 int test_vx_lite_cvhmlabn_points_elevation()
 {
@@ -97,44 +97,6 @@ int test_vx_lite_cvhmlabn_points_depth()
   return _success();
 }
 
-int test_vx_lite_cvhmlabn_points_offset()
-{
-  char infile[1280];
-  char outfile[1280];
-  char reffile[1280];
-  char currentdir[1000];
-
-  printf("Test: vx_lite_cvmhsgbn executable with offset(none) option\n");
-
-  /* Save current directory */
-  getcwd(currentdir, 1000);
-
-  sprintf(infile, "%s/%s", currentdir, "./inputs/test-offset.in");
-  sprintf(outfile, "%s/%s", currentdir, 
-	  "test-10-point-vx-lite-cvmhsgbn-extract-offset.out");
-  sprintf(reffile, "%s/%s", currentdir, 
-	  "./ref/test-10-point-vx-lite-cvmhsgbn-extract-offset.ref");
-
-  if (test_assert_int(save_elevation_test_points(infile), 0) != 0) {
-    return _failure("fail to create test points");
-  }
-
-  if (test_assert_int(runVXLiteCVMHSGBN(BIN_DIR, MODEL_DIR, infile, outfile, 
-				MODE_NONE), 0) != 0) {
-    return _failure("vx_lite_cvmhsgbn failure");
-  }
-
-  /* Perform diff btw outfile and ref */
-  if (test_assert_file(outfile, reffile) != 0) {
-    return _failure("diff file");
-  }
-
-  unlink(outfile);
-
-  return _success();
-}
-
-
 int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
 {
   suite_t suite;
@@ -160,10 +122,6 @@ int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
   strcpy(suite.tests[1].test_name, "test_vx_lite_cvhmlabn_points_depth");
   suite.tests[1].test_func = &test_vx_lite_cvhmlabn_points_depth;
   suite.tests[1].elapsed_time = 0.0;
-
-  strcpy(suite.tests[1].test_name, "test_vx_lite_cvhmlabn_points_offset");
-  suite.tests[2].test_func = &test_vx_lite_cvhmlabn_points_offset;
-  suite.tests[2].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
     fprintf(stderr, "ERROR: Failed to execute tests\n");

@@ -1,7 +1,6 @@
 #ifndef TEST_HELPER_H
 #define TEST_HELPER_H
 
-#include "vx_sub.h"
 #include "cvmhsgbn.h"
 
 /* Constants */

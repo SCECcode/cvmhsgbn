@@ -164,7 +164,6 @@ int test_query_by_elevation()
   }
 }
 
-// using points 'offset' by ucvm's digital elevation
 int test_query_points_by_elevation()
 {
   printf("Test: model_query() points by elevation\n");

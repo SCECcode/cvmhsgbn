@@ -1,7 +1,0 @@
-./unittest
-Test: vx_lite executable w/ emulation option
-PASS
-Test: vx_lite executable w/ depth option
-PASS
-Test: vx_lite executable w/ SCEC 1D bkg option
-PASS

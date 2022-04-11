@@ -1,7 +1,7 @@
 # Autoconf/automake file
 
 lib_LIBRARIES = libvxapi_cvmhsgbn.a libcvmhsgbn.a 
-bin_PROGRAMS = vx_lite_cvmhsgbn vx_cvmhsgbn vx_cvmhsgbn_validate vx_cvmhsgbn_lite_validate 
+bin_PROGRAMS = vx_lite_cvmhsgbn vx_cvmhsgbn 
 include_HEADERS = vx_sub_cvmhsgbn.h
 
 # General compiler/linker flags
@@ -13,10 +13,8 @@ AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgctpc
 libcvmhsgbn_a_SOURCES = vx_sub_cvmhsgbn.c vx_io.c 
 vx_lite_cvmhsgbn_SOURCES = vx_lite_cvmhsgbn.c
 vx_cvmhsgbn_SOURCES = vx_cvmhsgbn.c
-vx_cvmhsgbn_validate_SOURCES = vx_cvmhsgbn_validate.c
-vx_cvmhsgbn_lite_validate_SOURCES = vx_cvmhsgbn_lite_validate.c
 
-TARGETS = vx_lite_cvmhsgbn vx_cvmhsgbn vx_cvmhsgbn_validate vx_cvmhsgbn_lite_validate libvxapi_cvmhsgbn.a  libcvmhsgbn.a libcvmhsgbn.so
+TARGETS = vx_lite_cvmhsgbn vx_cvmhsgbn libvxapi_cvmhsgbn.a  libcvmhsgbn.a libcvmhsgbn.so
 
 all: $(TARGETS)
 
@@ -52,22 +50,7 @@ vx_lite_cvmhsgbn : vx_lite_cvmhsgbn.o libvxapi_cvmhsgbn.a
 vx_cvmhsgbn.o : vx_cvmhsgbn.c
 	$(CC) -o $@ -c $^ $(AM_CFLAGS)
 
-vx_cvmhsgbn_lite_validate.o : vx_cvmhsgbn_lite_validate.c
-	$(CC) -o $@ -c $^ $(AM_CFLAGS)
-
-vx_cvmhsgbn_lite_validate : vx_cvmhsgbn_lite_validate.o libcvmhsgbn.a
-	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
-vx_cvmhsgbn_validate.o : vx_cvmhsgbn_validate.c
-	$(CC) -o $@ -c $^ $(AM_CFLAGS)
-
-vx_cvmhsgbn_validate : vx_cvmhsgbn_validate.o libcvmhsgbn.a
-	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
 vx_cvmhsgbn : vx_cvmhsgbn.o libcvmhsgbn.a
-	$(CC) -o $@ $^ $(AM_LDFLAGS)
-
-vx: vx.o
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
 clean:

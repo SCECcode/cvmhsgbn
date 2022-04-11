@@ -1,4 +1,4 @@
-# Autoconf/automake file
+# Autocon /automake file
 
 bin_PROGRAMS = unittest accepttest
 
