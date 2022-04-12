@@ -1,14 +1,14 @@
 /*
- * @file vx_cvmhsgbn_lite_validate.c
+ * @file cvmhsgbn_vxlite_validate.c
  * @brief test with a full set of validation points
  * @author - SCEC
  * @version 1.0
  *
  * Tests the CVMHSGBN as vx_lite_cvmhsgbn would and recreate a
- * new input dataset that is depth based
+ * new input dataset that includes depth from cvmh topography.
  *
  *
- *  ./vx_cvmhsgbn_lite_validate -m modeldir -f CVMHB-San-Gabriel-Basin.dat
+ *  ./cvmhsgbn_vxlite_validate -m cvmhsgbn/model/dir -f validation/dir/CVMHB-San-Gabriel-Basin.dat
  *
  */
 
@@ -56,12 +56,12 @@ FILE *_process_datfile(char *fname) {
   char dat_line[1028];
   FILE *fp = fopen(fname, "r");
   if (fp == NULL) {
-    fprintf(stderr,"VALIDATE_LITE: FAIL: Unable to open the validation data file %s\n", fname);
+    fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
   /* read the title line */
   if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"VALIDATE_LITE: FAIL: Unable to extract validation data file %s\n", fname);
+    fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE: FAIL: Unable to extract validation data file %s\n", fname);
     fclose(fp);
     exit(1);
   }
@@ -79,7 +79,7 @@ FILE *_process_datfile(char *fname) {
 // X,Y,Z,tag61_basin,vp63_basin,vs63_basin
   while(p != NULL)
   {
-    if(validate_debug) { printf("VALIDATE_LITE:'%s'\n", p); }
+    if(validate_debug) { printf("CVMHSGBN_VALIDATE_VXLITE:'%s'\n", p); }
     if(strcmp(p,"X")==0)
       dat_entry.x_idx=counter;
     else if(strcmp(p,"Y")==0)
@@ -161,8 +161,8 @@ int main(int argc, char* const argv[]) {
 	// Declare the structures.
         vx_entry_t entry;
         char modeldir[500];
-        FILE *ofp = fopen("validate_lite_bad.out", "w");
-        FILE *oofp = fopen("validate_lite_foo.out", "w");
+        FILE *ofp = fopen("validate_vxlite_bad.txt", "w");
+        FILE *oofp = fopen("validate_vxlite_good.txt", "w");
 
         fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
         fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
@@ -229,30 +229,30 @@ int main(int argc, char* const argv[]) {
 
                vx_getcoord(&entry);
 
-               if(validate_debug) fprintf(stderr, "VALIDATE_LITE:   with.. %lf %lf %lf\n", entry.coor[0],entry.coor[1],entry.coor[2]);
+               if(validate_debug) fprintf(stderr, "CVMHSGBN_VALIDATE_VXLITE:   with.. %lf %lf %lf\n", entry.coor[0],entry.coor[1],entry.coor[2]);
 
               if(1) { // sometimes rcc could be 1 because it can not find right surface or of area or of area
                 if(validate_debug) {
-                   fprintf(stderr,"VALIDATE_LITE:     vs:%lf vp:%lf rho:%lf\n\n",entry.vs, entry.vp, entry.rho);
+                   fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE:     vs:%lf vp:%lf rho:%lf\n\n",entry.vs, entry.vp, entry.rho);
                 }
 
                 // is result matching ?
                 if(_compare_double(entry.vs, dat.vs) ||
                              _compare_double(entry.vp, dat.vp)) { 
 /*** special case.. only in lr
-VALIDATE_LITE:356000.000000,3754000.000000,-100.000114
-VALIDATE_LITE: dat.vs(-99999.000000),dat.vp(1480.000000)
-VALIDATE_LITE:   ret vs:(-1.000000) ret vp:(-1.000000)
+CVMHSGBN_VALIDATE_VXLITE:356000.000000,3754000.000000,-100.000114
+CVMHSGBN_VALIDATE_VXLITE: dat.vs(-99999.000000),dat.vp(1480.000000)
+CVMHSGBN_VALIDATE_VXLITE:   ret vs:(-1.000000) ret vp:(-1.000000)
 **/
                      // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (entry.vs == -1, entry.vp == -1) 
                      if (!_compare_double(entry.vs, -1.0) && !_compare_double(entry.vp, -1.0) &&
                               !_compare_double(dat.vs, -99999.0) && !_compare_double(dat.vp, -99999.0)) {
                        mmcount++;  // just -1 vs -99999
                        } else {
-                         fprintf(stderr,"\nVALIDATE_LITE:Mismatching -\n");
-                         fprintf(stderr,"VALIDATE_LITE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                         fprintf(stderr,"VALIDATE_LITE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                         fprintf(stderr,"VALIDATE_LITE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
+                         fprintf(stderr,"\nCVMHSGBN_VALIDATE_VXLITE:Mismatching -\n");
+                         fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                         fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                         fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
                          mcount++;  // real mismatch
                       }
                       fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
@@ -264,8 +264,8 @@ VALIDATE_LITE:   ret vs:(-1.000000) ret vp:(-1.000000)
           rc=_next_datfile(fp, &dat);
         }
 
-        fprintf(stderr,"VALIDATE_LITE: %d mismatch out of %d (mmcount %d)\n", mcount, tcount,mmcount);
-        fprintf(stderr,"VALIDATE_LITE: good with matching values(%d) \n",okcount );
+        fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE: %d mismatch out of %d (mmcount %d)\n", mcount, tcount,mmcount);
+        fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE: good with matching values(%d) \n",okcount );
  
        // vx_cleanup();
 
