@@ -1,6 +1,6 @@
 # Autoconf/automake file
 
-bin_PROGRAMS = cvmhsgbn_api_validate cvmhsgbn_vxlite_validate 
+bin_PROGRAMS = cvmhsgbn_api_validate cvmhsgbn_vxlite_validate
 
 # General compiler/linker flags
 AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
@@ -11,7 +11,12 @@ AM_LDFLAGS = ${LDFLAGS} -L../src -lcvmhsgbn -L../gctpc/source -lgctpc -lm
 cvmhsgbn_api_validate_SOURCES = cvmhsgbn_api_validate.c
 cvmhsgbn_vxlite_validate_SOURCES = cvmhsgbn_vxlite_validate.c
 
-.PHONY = run_validate
+if UCVM
+bin_PROGRAMS += cvmhsgbn_ucvm_validate
+cvmhsgbn_ucvm_validate_SOURCES = cvmhsgbn_ucvm_validate.c
+endif
+
+.PHONY = run_validate run_validate_with_ucvm
 
 all: $(bin_PROGRAMS)
 
@@ -25,6 +30,11 @@ cvmhsgbn_vxlite_validate : cvmhsgbn_vxlite_validate.o
 cvmhsgbn_api_validate : cvmhsgbn_api_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
+if UCVM
+cvmhsgbn_ucvm_validate : cvmhsgbn_ucvm_validate.o 
+	$(CC) -o $@ $^ $(AM_LDFLAGS)
+endif
+
 ############################################
 # Special build targets
 ############################################
@@ -32,6 +42,9 @@ cvmhsgbn_api_validate : cvmhsgbn_api_validate.o
 run_validate:
 	./run_vxlite_validate.sh
 	./run_api_validate.sh
+
+run_validate_with_ucvm:
+	./run_ucvm_validate.sh
 
 clean:
 	rm -rf *~ *.o $(bin_PROGRAMS) *.txt

@@ -19,8 +19,7 @@
 #include <math.h>
 #include <stdarg.h>
 
-#include "ucvm_model_dtypes.h"
-#include "vx_sub.h"
+#include "vx_sub_cvmhsgbn.h"
 
 // Constants
 #ifndef M_PI

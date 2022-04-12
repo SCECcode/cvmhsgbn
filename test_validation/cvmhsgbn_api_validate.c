@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <string.h>
+#include <ucvm_model_dtypes.h>
 #include "cvmhsgbn.h"
 
 int validate_debug = 0;

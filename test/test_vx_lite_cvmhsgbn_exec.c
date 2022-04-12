@@ -14,7 +14,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <getopt.h>
-#include "vx_sub.h"
+#include "vx_sub_cvmhsgbn.h"
 #include "unittest_defs.h"
 #include "test_helper.h"
 #include "test_vx_lite_cvmhsgbn_exec.h"

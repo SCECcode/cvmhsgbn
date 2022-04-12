@@ -4,11 +4,10 @@
  * @author - SCEC
  * @version 1.0
  *
- * Tests the CVMHLABN library by loading it and executing the code as
- * UCVM would.
+ * Tests the CVMHSBBN library by running with UCVM
  *
  *
- *  ./cvmhsgbn_ucvm_validate -f validate_api_good.txt
+ *  ./cvmhsgbn_ucvm_validate -c ucvm.conf -f validate_api_good.txt
  *
  *  test 2 mode: query-by-elevation and query-by-depth
  */
@@ -22,6 +21,8 @@
 #include "ucvm_utils.h"
 
 #include "cvmhsgbn.h"
+
+#define NUM_POINTS 10
 
 int validate_debug = 0;
 
@@ -152,12 +153,12 @@ void usage() {
   printf("     vx_cvmhsgbn_valiate - (c) SCEC\n");
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
-  printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_cvmhsgbn_validate [-d] [-z dep/elev/off] -f file.dat\n\n");
+  printf("X Y Z depth columns. Z is expressed as elevation by default.\n\n");
+  printf("\tusage: vx_cvmhsgbn_validate [-d] -c ucvm.conf -f file.dat\n\n");
   printf("Flags:\n");
+  printf("\t-c ucvm.conf\n\n");
   printf("\t-f point.dat\n\n");
   printf("\t-d enable debug/verbose mode\n\n");
-  printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
   printf("Output format is:\n");
   printf("\tvp vs rho\n\n");
   exit (0);
@@ -167,34 +168,31 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 /**
- * Initializes CVMHLABN in standalone mode as ucvm plugin 
- * api.
  *
  * @param argc The number of arguments.
  * @param argv The argument strings.
  * @return A zero value indicating success.
  */
 int main(int argc, char* const argv[]) {
-
-	// Declare the structures.
-	cvmhsgbn_point_t pt;
-	cvmhsgbn_properties_t ret;
-        int rc;
+        int rc=0;
         int opt;
 
-        char datfile[100]="";
-        char configfile[100]="";
-        ucvm_ctype_t cmode=XXX;
+        char datfile[250]="";
+        char configfile[250]="";
+        ucvm_ctype_t cmode=UCVM_COORD_GEO_DEPTH;
 
-        dat_data_t dat;
+        dat_data_t *dat;
+        ucvm_point_t *pnts;
+        ucvm_data_t *props;
+
+        int idx=0;
         int tcount=0;  // total entry
         int mcount=0;  // real mismatch
         int mmcount=0; // fake mismatch -- no data
         int okcount=0;
+
         FILE *ofp= fopen("validate_ucvm_bad.txt","w");
-        FILE *oofp= fopen("validate_ucvm_good.txt","w");
-        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
-        fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin,vs,vp\n");
 
         /* Parse options */
         while ((opt = getopt(argc, argv, "df:c:h")) != -1) {
@@ -204,18 +202,6 @@ int main(int argc, char* const argv[]) {
             break;
           case 'f':
             strcpy(datfile, optarg);
-            break;
-XXX
-          case 'z':
-            if (strcasecmp(optarg, "dep") == 0) {
-              zmode = UCVM_COORD_GEO_DEPTH;
-            } else if (strcasecmp(optarg, "elev") == 0) {
-              zmode = UCVM_COORD_GEO_ELEV;
-            } else {
-              fprintf(stderr, "VALIDATE_UCVM: Invalid coord type %s", optarg);
-              usage();
-              exit(0);
-            }
             break;
           case 'd':
             validate_debug=1;
@@ -233,68 +219,77 @@ XXX
       
         FILE *fp=_process_datfile(datfile);
 
-	// Initialize the model. 
-        // try to use Use UCVM_INSTALL_PATH
-        char *envstr=getenv("UCVM_INSTALL_PATH");
-        if(envstr != NULL) {
-	   assert(cvmhsgbn_init(envstr, "cvmhsgbn") == 0);
-           } else {
-	     assert(cvmhsgbn_init("..", "cvmhsgbn") == 0);
+        /* Initialize interface */
+        if (ucvm_init(configfile) != UCVM_CODE_SUCCESS) {
+          fprintf(stderr, "Failed to initialize UCVM API\n");
+          return(1);
         }
-	printf("VALIDATE_UCVM: Loaded the model successfully.\n");
 
-        assert(cvmhsgbn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
-	printf("VALIDATE_UCVM: Set model zmode successfully.\n");
+        /* Add models */
+        if (ucvm_add_model_list("cvmhsgbn") != UCVM_CODE_SUCCESS) {
+          fprintf(stderr, "Failed to enable model list: cvmhsgbn\n");
+          return(1);
+        }
 
-        rc=_next_datfile(fp, &dat); // do it one by one with ucvm_query.. 
-        while(rc==0) {
-XXX
+        /* Set z mode for depth*/
+        if (ucvm_setparam(UCVM_PARAM_QUERY_MODE, cmode) != UCVM_CODE_SUCCESS) {
+          fprintf(stderr, "Failed to set z mode\n");
+          return(1);
+        }
 
+
+        /* Allocate buffers */
+        dat = malloc(NUM_POINTS * sizeof(dat_data_t));
+        pnts = malloc(NUM_POINTS * sizeof(ucvm_point_t));
+        props = malloc(NUM_POINTS * sizeof(ucvm_data_t));
+
+        while(rc==0 && idx < NUM_POINTS && tcount < 3) {
+              memset(&(pnts[idx]), 0, sizeof(ucvm_point_t));
+              memset(&(dat[idx]), 0, sizeof(dat_data_t));
+              rc=_next_datfile(fp, &dat[idx]); 
               tcount++;
-              pt.longitude = dat.x;
-              pt.latitude = dat.y;
-              pt.depth = dat.depth;
+              pnts[idx].coord[0]=dat[idx].x;
+              pnts[idx].coord[1]=dat[idx].y;
+              pnts[idx].coord[2]=dat[idx].depth;
+              idx++;
 
-	      rc=cvmhsgbn_query(&pt, &ret, 1); // rc 0 is okay
-
-              if(validate_debug) {fprintf(stderr, "VALIDATE_UCVM:   with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
-              if(rc == 0) {
-
-                if(validate_debug) {
-                   fprintf(stderr,"VALIDATE_UCVM:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
+              if(idx == NUM_POINTS) {
+                /* Query the UCVM */
+                if (ucvm_query(NUM_POINTS, pnts, props) != UCVM_CODE_SUCCESS) {
+                  fprintf(stderr, "Query CVM failed\n");
+                  return(1);
                 }
-
+                // compare result
+                idx=0;
                 // is result matching ?
-                if(_compare_double(ret.vs, dat.vs) ||
-                             _compare_double(ret.vp, dat.vp)) { 
-
-/*** special case.. only in lr
-
-VALIDATE_UCVM:356000.000000,3754000.000000,-100.000114
-VALIDATE_UCVM: dat.vs(-99999.000000),dat.vp(1480.000000)
-VALIDATE_UCVM:   ret vs:(-1.000000) ret vp:(-1.000000)
-
-**/
-                     // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (ret.vs == -1, ret.vp == -1) 
-                     if (!_compare_double(ret.vs, -1.0) && !_compare_double(ret.vp, -1.0) &&
-                              !_compare_double(dat.vs, -99999.0) && !_compare_double(dat.vp, -99999.0)) {
-                       mmcount++;  // just -1 vs -99999
-                       fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
-                       } else {
-                         fprintf(stderr,"\nVALIDATE_UCVM:Mismatching -\n");
-                         fprintf(stderr,"VALIDATE_UCVM:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                         fprintf(stderr,"VALIDATE_UCVM: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                         fprintf(stderr,"VALIDATE_UCVM:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
-                         mcount++;  // real mismatch
-                         fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
-                      }
+                for(int j=0; j<NUM_POINTS; j++) {
+                  if(_compare_double(props[j].cmb.vs, dat[j].vs) || _compare_double(props[j].cmb.vp, dat[j].vp)) { 
+                    fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].depth,dat[j].vp,dat[j].vs,props[j].cmb.vs,props[j].cmb.vp);
                     } else {
-                         okcount++;
+                      okcount++;
                   }
-                } else { // rc=1 
-                   if(validate_debug) printf("VALIDATE_UCVM: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
+                }
+                idx=0;
               }
-          rc=_next_datfile(fp, &dat);
+        }
+        if(idx > 0) {
+            /* Query the UCVM */
+            if (ucvm_query(idx, pnts, props) != UCVM_CODE_SUCCESS) {
+              fprintf(stderr, "Query CVM failed\n");
+              return(1);
+            }
+            // compare result
+            idx=0;
+            // is result matching ?
+            for(int j=0; j<idx; j++) {
+              if(_compare_double(props[j].cmb.vs, dat[j].vs) || _compare_double(props[j].cmb.vp, dat[j].vp)) {
+                fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].depth,dat[j].vp,dat[j].vs,props[j].cmb.vs,props[j].cmb.vp);
+                } else {
+                  okcount++;
+              }
+            }
         }
 
         fprintf(stderr,"VALIDATE_UCVM: %d mismatch out of %d \n", mcount, tcount);
@@ -302,173 +297,11 @@ VALIDATE_UCVM:   ret vs:(-1.000000) ret vp:(-1.000000)
 	assert(cvmhsgbn_finalize() == 0);
 	printf("VALIDATE_UCVM:Model closed successfully.\n");
 
-
         fclose(fp);
         fclose(ofp);
-        fclose(oofp);
 
 	return 0;
 }
 
-
-
-
-#define NUM_POINTS 20000
-char *configfile;
-ucvm_ctype_t cmode;
-
-
-
-  cmode = UCVM_COORD_GEO_DEPTH;
-  snprintf(configfile, UCVM_MAX_PATH_LEN, "%s", "./ucvm.conf");
-  snprintf(modellist, UCVM_MAX_MODELLIST_LEN, "%s", "1d");
-  snprintf(map_label, UCVM_MAX_LABEL_LEN, "%s", UCVM_MAP_UCVM);
-
- /* Initialize interface */
-  if (ucvm_init(configfile) != UCVM_CODE_SUCCESS) {
-    fprintf(stderr, "Failed to initialize UCVM API\n");
-    return(1);
-  }
-
-  /* Add models */
-  if (ucvm_add_model_list("cvmhsgbn") != UCVM_CODE_SUCCESS) {
-    fprintf(stderr, "Failed to enable model list %s\n", modellist);
-    return(1);
-  }
-
-  /* Set z mode for depth*/
-  if (ucvm_setparam(UCVM_PARAM_QUERY_MODE, cmode) != UCVM_CODE_SUCCESS) {
-    fprintf(stderr, "Failed to set z mode\n");
-    fprintf(stderr, "Failed to set z mode\n");
-    return(1);
-  }
-
-  /* Allocate buffers */
-  pnts = malloc(NUM_POINTS * sizeof(ucvm_point_t));
-  qpnts = malloc((int)(max_depth/z_inter) * sizeof(ucvm_point_t));
-  qprops = malloc((int)(max_depth/z_inter) * sizeof(ucvm_data_t));
-
-  /* Read in coords */
-  while (!feof(stdin)) {
-    memset(&(pnts[numread]), 0, sizeof(ucvm_point_t));
-    if (
-
-
-fscanf(stdin,"%lf %lf", &(pnts[numread].coord[0]),
-
-      /* Check for scan failure */
-      if ((pnts[numread].coord[0] == 0.0) ||
-          (pnts[numread].coord[1] == 0.0)) { continue; }
-
-
-      numread++;
-      if (numread == NUM_POINTS) {
-
-      qpnts[i].coord[0] = pnts[p].coord[0];
-      qpnts[i].coord[1] = pnts[p].coord[1];
-      qpnts[i].coord[2] = (double)i * z_inter;
-    }
-
-    /* Query the UCVM */
-    if (ucvm_query(numz, qpnts, qprops) != UCVM_CODE_SUCCESS) {
-      fprintf(stderr, "Query CVM failed\n");
-      return(1);
-    }
-kkkk
-XXX
-        if (extract_basins(numread, pnts, qpnts, qprops,
-                           max_depth, z_inter,
-                           vs_thresh) != UCVM_CODE_SUCCESS) {
-          fprintf(stderr, "Query basins failed\n");
-
-
-          return(1);
-        }
-        numread = 0;
-      }
-    }
-  }
-
-  if (numread > 0) {
-XXX
-    if (extract_basins(numread, pnts, qpnts, qprops,
-                       max_depth, z_inter,
-                       vs_thresh) != UCVM_CODE_SUCCESS) {
-      fprintf(stderr, "Query basins failed\n");
-      return(1);
-    }
-    numread = 0;
-  }
-
-  ucvm_finalize();
-  free(pnts);
-  free(qpnts);
-  free(qprops);
-
-  return(0);
-}
-
-
-
-/* Extract basin values for the specified points */
-int extract_properties(int n, ucvm_point_t *pnts, \
-                   ucvm_point_t *qpnts, ucvm_data_t *qprops,
-                   double max_depth, double z_inter, double vs_thresh)
-{
-  int i, p, dnum, numz;
-  double vs_prev;
-  double depths[3];
- 
-  numz = (int)(max_depth / z_inter);
-  for (p = 0; p < n; p++) {
-    /* Setup query points */
-    for (i = 0; i < numz; i++) {
-      qpnts[i].coord[0] = pnts[p].coord[0];
-      qpnts[i].coord[1] = pnts[p].coord[1];
-      qpnts[i].coord[2] = (double)i * z_inter;
-    }
-
-    /* Query the UCVM */
-    if (ucvm_query(numz, qpnts, qprops) != UCVM_CODE_SUCCESS) {
-      fprintf(stderr, "Query CVM failed\n");
-      return(1);
-    }
-
-    /* Check for threshold crossing */
-    vs_prev = DEFAULT_ZERO_DEPTH;
-    dnum = 0;
-    depths[0] = DEFAULT_NULL_DEPTH;
-    depths[1] = DEFAULT_NULL_DEPTH;
-    depths[2] = DEFAULT_NULL_DEPTH;
-    for (i = 0; i < numz; i++) {
-      /* Compare the Vs if it is valid */
-      if (qprops[i].cmb.vs > DEFAULT_ZERO_DEPTH) {
-        if ((vs_prev < vs_thresh) && (qprops[i].cmb.vs >= vs_thresh)) {
-          depths[dnum] = (double)i * z_inter;
-          if (dnum == 0) {
-            depths[2] = depths[1] = depths[0];
-            dnum++;
-            } else {
-              if(dnum == 1) {
-                 depths[2] = depths[1];
-                 dnum++;
-              }
-          }
-
-        }
-
-        /* Save current vs value */
-        vs_prev = qprops[i].cmb.vs;
-      }
-    }
-
-    /* Display output */
-    printf(OUTPUT_FMT, pnts[p].coord[0], pnts[p].coord[1],
-           depths[0], depths[1], depths[2]);
-
-  }
-
-  return(0);
-}
 
 

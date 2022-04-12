@@ -1,6 +1,7 @@
 #ifndef TEST_HELPER_H
 #define TEST_HELPER_H
 
+#include "ucvm_model_dtypes.h"
 #include "cvmhsgbn.h"
 
 /* Constants */
