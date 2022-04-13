@@ -1,9 +1,9 @@
-/** vx_sub.c - Query interface to GoCAD voxet volumes and GTL. Supports
+/** vx_sub_cvmhsgbn.c - Query interface to GoCAD voxet volumes and GTL. Supports
     queries for material properties and topography. Accepts Geographic Coordinates 
     or UTM Zone 11 coordinates.
 
+04/2022: MHS: converted to extract just basin(reuse HR)
 01/2010: PES: Derived from original VX interface, vx.c. 
-              Added Vs30 Derived GTL, 1D background, smoothing
 07/2011: PES: Extracted io into separate module from vx_sub.c
 **/
 
@@ -402,7 +402,7 @@ int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enhanced);
 
   int j=0;
-  double SP[2],SPUTM[2];
+  double SP[2],SPUTM[2],SPGEO[2];
   int gcoor[3];
   // fall into bkg
   int do_bkg = False;
@@ -434,14 +434,29 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
   /* Generate UTM coords */
   switch (entry->coor_type) {
   case VX_COORD_GEO:
-    
     SP[0]=entry->coor[0];
     SP[1]=entry->coor[1];
+    insys=0; // GEO
+
+fprintf(stderr,"  before GEO: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
+fprintf(stderr,"  before GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
     
     gctp(SP,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
 	 SPUTM,&outsys,&outzone,inparm,&outunit,&outdatum,
 	 file27, file83,&iflg);
-    
+fprintf(stderr,"GEO: SP (%lf, %lf) SPUTM (%lf, %lf)\n", SP[0], SP[1], SPUTM[0], SPUTM[1]);
+fprintf(stderr,"  after GEO: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
+fprintf(stderr,"  after GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
+
+    insys=1;
+    gctp(SPUTM,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
+	 SPGEO,&outsys,&outzone,inparm,&outunit,&outdatum,
+	 file27, file83,&iflg);
+
+fprintf(stderr,"UTM: SPUTM (%lf, %lf) SPGEO (%lf, %lf)\n", SPUTM[0], SPUTM[1], SPGEO[0], SPGEO[1]);
+fprintf(stderr,"  after UTM: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
+fprintf(stderr,"  after UTM: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
+
     entry->coor_utm[0]=SPUTM[0];
     entry->coor_utm[1]=SPUTM[1];
     entry->coor_utm[2]=entry->coor[2];
@@ -450,6 +465,7 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
     entry->coor_utm[0]=entry->coor[0];
     entry->coor_utm[1]=entry->coor[1];
     entry->coor_utm[2]=entry->coor[2];
+
     break;
   default:
     return(1);
