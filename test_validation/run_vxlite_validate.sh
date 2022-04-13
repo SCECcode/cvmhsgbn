@@ -10,9 +10,9 @@ if [ ! -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat ]; then
   exit 1
 fi
 
-if [ "$UCVM_INSTALL_PATH" ] ; then
-  SCRIPT_DIR="$UCVM_INSTALL_PATH"/bin
-  source ${SCRIPT_DIR}/../conf/ucvm_env.sh
+if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
+  SCRIPT_DIR=${UCVM_INSTALL_PATH}/bin
+  source $SCRIPT_DIR/../conf/ucvm_env.sh
   ./cvmhsgbn_vxlite_validate -m ../data/cvmhsgbn -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat
   else
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"

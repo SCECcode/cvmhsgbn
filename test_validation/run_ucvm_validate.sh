@@ -8,9 +8,9 @@ if [ ! -f ./validate_api_good.txt  ]; then
   exit 1 
 fi
 
-if [ "$UCVM_INSTALL_PATH" ] ; then
-  SCRIPT_DIR="$UCVM_INSTALL_PATH"/bin
-  source ${SCRIPT_DIR}/../conf/ucvm_env.sh
+if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
+  SCRIPT_DIR=${UCVM_INSTALL_PATH}/bin
+  source $SCRIPT_DIR/../conf/ucvm_env.sh
   ./cvmhsgbn_ucvm_validate -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./validate_vxlite_good.txt
   else
     echo "need to have UCVM_INSTALL_PATH set!!!"

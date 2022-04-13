@@ -9,9 +9,9 @@ if [ ! -f ./validate_vxlite_good.txt  ]; then
   exit 1 
 fi
 
-if [ "$UCVM_INSTALL_PATH" ] ; then
+if [ "x$UCVM_INSTALL_PATH" != "x" ] ; then
   SCRIPT_DIR="$UCVM_INSTALL_PATH"/bin
-  source ${SCRIPT_DIR}/../conf/ucvm_env.sh
+  source $SCRIPT_DIR/../conf/ucvm_env.sh
   ./cvmhsgbn_api_validate -f ./validate_vxlite_good.txt
   else
     SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
