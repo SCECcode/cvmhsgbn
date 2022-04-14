@@ -11,11 +11,6 @@ jobs:
       matrix:
         python-version: [3.7]
     steps:
-#    - name: set UCVM_SRC_PATH 
-#      run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/ucvm" >> $GITHUB_ENV
-#    - name: set UCVM_INSTALL_PATH 
-#      run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/target" >> $GITHUB_ENV
-#    - name: checkout cvmhsgbn main
       uses: actions/checkout@v2
       with: 
         ref: main
@@ -32,10 +27,6 @@ jobs:
       matrix:
         python-version: [3.7]
     steps:
-    - name: set UCVM_SRC_PATH 
-      run: echo "UCVM_SRC_PATH=$RUNNER_WORKSPACE/ucvm" >> $GITHUB_ENV
-    - name: set UCVM_INSTALL_PATH 
-      run: echo "UCVM_INSTALL_PATH=$RUNNER_WORKSPACE/target" >> $GITHUB_ENV
     - name: checkout cvmhsgbn main
       uses: actions/checkout@v2
       with: 
