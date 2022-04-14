@@ -5,9 +5,9 @@ bin_PROGRAMS = vx_lite_cvmhsgbn vx_cvmhsgbn
 include_HEADERS = vx_sub_cvmhsgbn.h
 
 # General compiler/linker flags
-AM_CFLAGS = ${CFLAGS} -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
+AM_CFLAGS = -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
             -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -fPIC
-AM_LDFLAGS = ${LDFLAGS} -L../gctpc/source -lgctpc
+AM_LDFLAGS = -L../gctpc/source -lgctpc
 
 # Dist sources
 libcvmhsgbn_a_SOURCES = vx_sub_cvmhsgbn.c vx_io.c 

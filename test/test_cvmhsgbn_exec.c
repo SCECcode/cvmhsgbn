@@ -11,11 +11,9 @@
 #include <math.h>
 #include <unistd.h>
 #include <getopt.h>
-#include "cvmhsgbn.h"
-#include "unittest_defs.h"
 #include "test_helper.h"
+#include "unittest_defs.h"
 #include "test_cvmhsgbn_exec.h"
-#include "ucvm_model_dtypes.h"
 
 
 int test_setup()

@@ -438,12 +438,16 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
     SP[1]=entry->coor[1];
     insys=0; // GEO
 
+if(cvmhsgbn_debug) {
 fprintf(stderr,"  before GEO: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
 fprintf(stderr,"  before GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
-    
+}
+
     gctp(SP,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
 	 SPUTM,&outsys,&outzone,inparm,&outunit,&outdatum,
 	 file27, file83,&iflg);
+
+if(cvmhsgbn_debug) {
 fprintf(stderr,"GEO: SP (%lf, %lf) SPUTM (%lf, %lf)\n", SP[0], SP[1], SPUTM[0], SPUTM[1]);
 fprintf(stderr,"  after GEO: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
 fprintf(stderr,"  after GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
@@ -456,6 +460,7 @@ fprintf(stderr,"  after GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld)
 fprintf(stderr,"UTM: SPUTM (%lf, %lf) SPGEO (%lf, %lf)\n", SPUTM[0], SPUTM[1], SPGEO[0], SPGEO[1]);
 fprintf(stderr,"  after UTM: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
 fprintf(stderr,"  after UTM: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
+}
 
     entry->coor_utm[0]=SPUTM[0];
     entry->coor_utm[1]=SPUTM[1];
