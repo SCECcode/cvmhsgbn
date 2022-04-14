@@ -4,7 +4,6 @@ if [ "x${UCVM_INSTALL_PATH}" != "x" ]; then
   if [ -d ${UCVM_INSTALL_PATH}/model/cvmhsgbn/lib ]; then
      source ${UCVM_INSTALL_PATH}/conf/ucvm_env.sh
      ./unittest
-#    env DYLD_LIBRARY_PATH=${UCVM_INSTALL_PATH}/model/cvmhsgbn/lib ./unittest
     exit
   fi
 fi
