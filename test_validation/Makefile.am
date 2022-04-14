@@ -11,10 +11,10 @@ AM_LDFLAGS = -L../src -lcvmhsgbn -L../gctpc/source -lgctpc -lm
 cvmhsgbn_api_validate_SOURCES = cvmhsgbn_api_validate.c
 cvmhsgbn_vxlite_validate_SOURCES = cvmhsgbn_vxlite_validate.c
 
-if UCVM
-bin_PROGRAMS += cvmhsgbn_ucvm_validate
-cvmhsgbn_ucvm_validate_SOURCES = cvmhsgbn_ucvm_validate.c
-endif
+#if UCVM
+#bin_PROGRAMS += cvmhsgbn_ucvm_validate
+#cvmhsgbn_ucvm_validate_SOURCES = cvmhsgbn_ucvm_validate.c
+#endif
 
 .PHONY = run_validate run_validate_with_ucvm
 
@@ -30,10 +30,10 @@ cvmhsgbn_vxlite_validate : cvmhsgbn_vxlite_validate.o
 cvmhsgbn_api_validate : cvmhsgbn_api_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
-if UCVM
-cvmhsgbn_ucvm_validate : cvmhsgbn_ucvm_validate.o 
-	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
-endif
+#if UCVM
+#cvmhsgbn_ucvm_validate : cvmhsgbn_ucvm_validate.o 
+#	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
+#endif
 
 ############################################
 # Special build targets
