@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 #include <getopt.h>
 #include "params.h"
 #include "vx_sub_cvmhsgbn.h"
