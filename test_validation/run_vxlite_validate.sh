@@ -11,10 +11,13 @@ if [ ! -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat ]; then
 fi
 
 if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
-  SCRIPT_DIR=${UCVM_INSTALL_PATH}/bin
-  source $SCRIPT_DIR/../conf/ucvm_env.sh
-  ./cvmhsgbn_vxlite_validate -m ../data/cvmhsgbn -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat
-  else
-    SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-    env DYLD_LIBRARY_PATH=${SCRIPT_DIR}/../src LD_LIBRARY_PATH=${SCRIPT_DIR}/../src ./cvmhsgbn_vxlite_validate -m ../data/cvmhsgbn -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat
+  if [ -f $SCRIPT_DIR/../conf/ucvm_env.sh ] ; then
+    SCRIPT_DIR=${UCVM_INSTALL_PATH}/bin
+    source $SCRIPT_DIR/../conf/ucvm_env.sh
+    ./cvmhsgbn_vxlite_validate -m ../data/cvmhsgbn -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat
+    exit
+  fi
 fi
+
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+env DYLD_LIBRARY_PATH=${SCRIPT_DIR}/../src LD_LIBRARY_PATH=${SCRIPT_DIR}/../src ./cvmhsgbn_vxlite_validate -m ../data/cvmhsgbn -f ../data/cvmhsgbn/CVMHB-San-Gabriel-Basin.dat
