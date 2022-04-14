@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
+#include <getopt.h>
 #include "ucvm_model_dtypes.h"
 #include "cvmhsgbn.h"
 
