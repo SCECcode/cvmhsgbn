@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## testing cvmhsgbn part
+## test cvmhsgbn validation with ucvm
 
 cd test_validation
 
