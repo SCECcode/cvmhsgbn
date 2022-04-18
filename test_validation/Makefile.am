@@ -30,7 +30,7 @@ cvmhsgbn_ucvm_validate.o : cvmhsgbn_ucvm_validate.c
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
 
 cvmhsgbn_ucvm_validate : cvmhsgbn_ucvm_validate.o 
-	$(CC) -o $@ $^ $(AM_LDFLAGS) $(LDFLAGS)
+	$(CC) -o $@ $^  $(LDFLAGS) $(AM_LDFLAGS)
 endif
 
 ############################################
