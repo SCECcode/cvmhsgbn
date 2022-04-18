@@ -62,7 +62,7 @@ jobs:
       run: (cd $RUNNER_WORKSPACE/cvmhsgbn/ucvm/work/model/cvmhsgbn; source $UCVM_INSTALL_PATH/conf/ucvm_env.sh; ./.github/scripts/cvmhsgbn-test-ucvm.sh)
       shell: bash
     - name: Start SSH via Ngrok
-      if: ${{ failure() }}
+      if: ${{ success() }}
       uses: luchihoratiu/debug-via-ssh@main
       with:
             NGROK_AUTH_TOKEN: ${{ secrets.NGROK_TOKEN }}
