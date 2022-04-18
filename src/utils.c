@@ -1,4 +1,4 @@
-/** 
+/* 
     utils.c - Commonly used math and interpolation routines.
 
     01/2011: PES: Initial implementation

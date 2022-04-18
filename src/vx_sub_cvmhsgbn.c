@@ -380,7 +380,7 @@ int vx_cleanup()
 }
 
 
-/* Set query mode: elevation, elevation offset, depth */
+/* Set query mode: elevation, depth */
 int vx_setzmode(vx_zmode_t m) {
   vx_zmode = m;
   return(0);
@@ -395,14 +395,14 @@ int vx_getcoord(vx_entry_t *entry) {
 
 
 /* Private query function for material properties. Allows caller to 
-   disable advanced features like depth/offset query modes.
+   disable advanced features like depth/elevation query modes.
 */ 
 int vx_getcoord_private(vx_entry_t *entry, int enhanced) {
 
 if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enhanced);
 
   int j=0;
-  double SP[2],SPUTM[2],SPGEO[2];
+  double SP[2],SPUTM[2];
   int gcoor[3];
   // fall into bkg
   int do_bkg = False;
@@ -436,31 +436,45 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
   case VX_COORD_GEO:
     SP[0]=entry->coor[0];
     SP[1]=entry->coor[1];
-    insys=0; // GEO
 
-if(cvmhsgbn_debug) {
-fprintf(stderr,"  before GEO: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
-fprintf(stderr,"  before GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
-}
+    gctp(SP,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
+         SPUTM,&outsys,&outzone,inparm,&outunit,&outdatum,
+         file27, file83,&iflg);
+
+/***** These are for debugging 
+
+    insys=0; // GEO
 
     gctp(SP,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
 	 SPUTM,&outsys,&outzone,inparm,&outunit,&outdatum,
 	 file27, file83,&iflg);
 
-if(cvmhsgbn_debug) {
 fprintf(stderr,"GEO: SP (%lf, %lf) SPUTM (%lf, %lf)\n", SP[0], SP[1], SPUTM[0], SPUTM[1]);
+fprintf(stderr,"  after GEO: insys(%ld) inzone(%ld)\n", insys, inzone);
 fprintf(stderr,"  after GEO: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
 fprintf(stderr,"  after GEO: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
 
-    insys=1;
-    gctp(SPUTM,&insys,&inzone,inparm,&inunit,&indatum,&ipr,efile,&jpr,efile,
-	 SPGEO,&outsys,&outzone,inparm,&outunit,&outdatum,
+double SPGEO[2];
+long insys_geo = 1;
+long inzone_geo= 11;
+long inunit_geo = 2;
+long indatum_geo = 0;
+long outsys_geo = 0;
+long outzone_geo= 0;
+long outunit_geo = 4;
+long outdatum_geo = 0;
+
+    gctp(SPUTM,&insys_geo,&inzone_geo,inparm,&inunit_geo,&indatum_geo,&ipr,efile,&jpr,efile,
+	 SPGEO,&outsys_geo,&outzone_geo,inparm,&outunit_geo,&outdatum_geo,
 	 file27, file83,&iflg);
 
-fprintf(stderr,"UTM: SPUTM (%lf, %lf) SPGEO (%lf, %lf)\n", SPUTM[0], SPUTM[1], SPGEO[0], SPGEO[1]);
-fprintf(stderr,"  after UTM: inunit(%ld) indatum(%ld) ipr(%ld) jpr(%ld)\n", inunit, indatum, ipr, jpr);
-fprintf(stderr,"  after UTM: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld) iflg(%ld)\n", outsys, outzone, outunit, outdatum, iflg);
-}
+fprintf(stderr,"GEO: SPUTM (%lf, %lf) SPGEO (%lf, %lf)\n", SPUTM[0], SPUTM[1], SPGEO[0], SPGEO[1]);
+fprintf(stderr,"  2 after GEO: insys_geo(%ld) inzone_geo(%ld)\n", insys_geo, inzone_geo);
+fprintf(stderr,"  2 after GEO: inunit_geo(%ld) indatum_geo(%ld) ipr(%ld) jpr(%ld)\n", inunit_geo, indatum_geo, ipr, jpr);
+fprintf(stderr,"  2 after GEO: outsys_geo(%ld) outzone_geo(%ld) outunit_geo(%ld) outdatum_geo(%ld) iflg(%ld)\n",
+ outsys_geo, outzone_geo, outunit_geo, outdatum_geo, iflg);
+
+***************/
 
     entry->coor_utm[0]=SPUTM[0];
     entry->coor_utm[1]=SPUTM[1];
@@ -470,6 +484,37 @@ fprintf(stderr,"  after UTM: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld)
     entry->coor_utm[0]=entry->coor[0];
     entry->coor_utm[1]=entry->coor[1];
     entry->coor_utm[2]=entry->coor[2];
+
+/********* FOR TESTING
+if(0) {
+    double SPUTM[2];
+    double SPGEO[2];
+    long insys_geo = 1;
+    long inzone_geo= 11;
+    long inunit_geo = 2;
+    long indatum_geo = 0;
+    long outsys_geo = 0;
+    long outzone_geo= 0;
+    long outunit_geo = 4;
+    long outdatum_geo = 0;
+
+    SPUTM[0]=entry->coor[0];
+    SPUTM[1]=entry->coor[1];
+
+    gctp(SPUTM,&insys_geo,&inzone_geo,inparm,&inunit_geo,&indatum_geo,&ipr,efile,&jpr,efile,
+         SPGEO,&outsys_geo,&outzone_geo,inparm,&outunit_geo,&outdatum_geo,
+         file27, file83,&iflg);
+
+if(cvmhsgbn_debug) {
+fprintf(stderr,"GEO: SPUTM (%lf, %lf) SPGEO (%lf, %lf)\n", SPUTM[0], SPUTM[1], SPGEO[0], SPGEO[1]);
+fprintf(stderr,"  2 after GEO: insys_geo(%ld) inzone_geo(%ld)\n", insys_geo, inzone_geo);
+fprintf(stderr,"  2 after GEO: inunit_geo(%ld) indatum_geo(%ld) ipr(%ld) jpr(%ld)\n", inunit_geo, indatum_geo, ipr, jpr);
+fprintf(stderr,"  2 after GEO: outsys_geo(%ld) outzone_geo(%ld) outunit_geo(%ld) outdatum_geo(%ld) iflg(%ld)\n",
+ outsys_geo, outzone_geo, outunit_geo, outdatum_geo, iflg);
+}
+
+}
+******/
 
     break;
   default:
@@ -508,7 +553,7 @@ fprintf(stderr,"  after UTM: outsys(%ld) outzone(%ld) outunit(%ld) outdatum(%ld)
       do_bkg = True;
     }
 
-    /* Convert depth/offset Z coordinate to elevation */
+    /* Convert depth/elevation Z coordinate to elevation */
     if(enhanced == True) {
 
       vx_getsurface(entry->coor, entry->coor_type, &surface);

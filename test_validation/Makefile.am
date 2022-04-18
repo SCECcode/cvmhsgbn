@@ -41,7 +41,7 @@ run_validate:
 	./run_vxlite_validate.sh
 	./run_api_validate.sh
 
-run_validate_with_ucvm:
+run_validate_with_ucvm: cvmhsgbn_ucvm_validate
 	./run_ucvm_validate.sh
 
 clean:

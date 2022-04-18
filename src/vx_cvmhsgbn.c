@@ -33,11 +33,11 @@ void usage() {
   printf("     vx_cvmhsgbn - (c) SCEC\n");
   printf("Extract velocities from a simple GOCAD voxet. Accepts\n");
   printf("geographic coordinates and UTM Zone 11, NAD27 coordinates in\n");
-  printf("X Y Z columns. Z is expressed as elevation offset by default.\n\n");
-  printf("\tusage: vx_cvmhsgbn [-d] [-z dep/elev/off] < file.in\n\n");
+  printf("X Y Z columns. Z is expressed as elevation by default.\n\n");
+  printf("\tusage: vx_cvmhsgbn [-d] [-z dep/elev] < file.in\n\n");
   printf("Flags:\n");
   printf("\t-d enable debug/verbose mode\n\n");
-  printf("\t-z directs use of dep/elev/off for Z column (default is dep).\n\n");
+  printf("\t-z directs use of dep/elev for Z column (default is dep).\n\n");
   printf("Output format is:\n");
   printf("\tvp vs rho\n\n");
   exit (0);
@@ -65,7 +65,7 @@ int main(int argc, char* const argv[]) {
 
 
         /* Parse options */
-        while ((opt = getopt(argc, argv, "z:h")) != -1) {
+        while ((opt = getopt(argc, argv, "dz:h")) != -1) {
           switch (opt) {
           case 'z':
             if (strcasecmp(optarg, "dep") == 0) {
@@ -77,6 +77,9 @@ int main(int argc, char* const argv[]) {
               usage();
               exit(0);
             }
+            break;
+          case 'd':
+            cvmhsgbn_debug=1;
             break;
           case 'h':
             usage();
@@ -104,6 +107,7 @@ int main(int argc, char* const argv[]) {
         char line[2001];
         while (fgets(line, 2000, stdin) != NULL) {
            if(line[0]=='#') continue; // comment line
+           if(line[0]=='d') break;
            if (sscanf(line,"%lf %lf %lf",
                &pt.longitude,&pt.latitude,&pt.depth) == 3) {
 

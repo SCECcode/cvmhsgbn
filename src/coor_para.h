@@ -3,6 +3,8 @@
 
 
 /**** Coordinate Trans parameters*/
+#define MAXPROJ 30
+
 double incoor[2];
 double outcoor[2];
 

@@ -241,8 +241,10 @@ int main(int argc, char* const argv[]) {
         rc=_next_datfile(fp, &dat);
         while(rc==0) {
               tcount++;
+
               pt.longitude = dat.x;
               pt.latitude = dat.y;
+
               pt.depth = dat.depth;
 
 	      rc=cvmhsgbn_query(&pt, &ret, 1); // rc 0 is okay
@@ -280,6 +282,7 @@ CVMHSGBN_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
                       }
                     } else {
                          okcount++;
+                         fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                   }
                 } else { // rc=1 
                    if(validate_debug) printf("CVMHSGBN_VALIDATE_API: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
