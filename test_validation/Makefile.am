@@ -11,7 +11,7 @@ AM_LDFLAGS = -L../src -lcvmhsgbn -L../gctpc/source -lgctpc -lm
 cvmhsgbn_api_validate_SOURCES = cvmhsgbn_api_validate.c
 cvmhsgbn_vxlite_validate_SOURCES = cvmhsgbn_vxlite_validate.c
 
-.PHONY = cvmhsgbn_ucvm_validate run_validate run_validate_with_ucvm
+.PHONY = run_validate run_validate_with_ucvm
 
 all: $(bin_PROGRAMS)
 
@@ -37,7 +37,7 @@ endif
 # Special build targets
 ############################################
 
-run_validate:
+run_validate: cvmhsgbn_vxlite_validate cvmhsgbn_api_validate
 	./run_vxlite_validate.sh
 	./run_api_validate.sh
 
