@@ -113,12 +113,11 @@ int cvmhsgbn_setparam(int id, int param, ...)
 /*****
 even if ucvm_query set elevation mode, still need to run as depth
 from ucvm_query, the depth is already proprocessed with (ucvm_surface - elevation)
+          cvmhsgbn_zmode = VX_ZMODE_ELEV;
 ****/
-          cvmhsgbn_zmode = VX_ZMODE_DEPTH;
           if(cvmhsgbn_ucvm_debug) fprintf(stderr,"calling cvmhsgbn_setparam >>  elevation\n");
           break;
-        default: // when set with VX_ZMODE_OTHER_ELEV
-          cvmhsgbn_zmode = VX_ZMODE_ELEV;
+        default:
           break;
        }
        vx_setzmode(cvmhsgbn_zmode);

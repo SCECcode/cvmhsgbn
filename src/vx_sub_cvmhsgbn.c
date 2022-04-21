@@ -568,7 +568,7 @@ fprintf(stderr,"  2 after GEO: outsys_geo(%ld) outzone_geo(%ld) outunit_geo(%ld)
 	return(1);
       }
 
-if(_debug) fprintf(stderr,"!!! ===> reorganize to query the backend by elevation only...!!!\n");
+if(_debug) fprintf(stderr,"!!! ===> reorganize to query the backend by elevation only...!!!mode %d\n",vx_zmode);
 if(_debug) fprintf(stderr," === PRE >>> surface %lf utm2 %lf coor2 %lf \n", surface, entry->coor_utm[2], entry->coor[2]);
 
       if(vx_zmode == VX_ZMODE_ELEV) {
@@ -579,8 +579,6 @@ if(_debug) fprintf(stderr," === PRE >>> surface %lf utm2 %lf coor2 %lf \n", surf
            depth = entry->coor_utm[2];
            elev = surface - entry->coor_utm[2];
       }
-
-if(_debug) fprintf(stderr," ===  NEW >>> depth %lf surface %lf utm2 %lf coor %lf \n", depth, surface, entry->coor_utm[2], entry->coor[2]);
 
       switch (vx_zmode) {
       case VX_ZMODE_ELEV:
@@ -594,10 +592,11 @@ if(_debug) fprintf(stderr," ===  NEW >>> depth %lf surface %lf utm2 %lf coor %lf
 	return(1);
 	break;
       }
-if(_debug) fprintf(stderr," ===FINAL: before calling >>> depth %lf surface %lf utm2 %lf coor2 %lf \n", depth, surface, entry->coor_utm[2], entry->coor[2]);
+
+if(_debug) fprintf(stderr," === POST >>> depth %lf surface %lf utm2 %lf coor %lf \n", depth, surface, entry->coor_utm[2], entry->coor[2]);
     }
 
-    if(cvmhsgbn_debug) { fprintf(stderr,"Looking into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
+    if(cvmhsgbn_debug) { fprintf(stderr,"Look into (HR)>>>>>> entry->coor(%lf %lf %lf)\n",
                                                         entry->coor[0], entry->coor[1], entry->coor[2]); }
     if ((do_bkg == False) || (enhanced == False)) {
       /* AP: this calculates the cell numbers from the coordinates and 
@@ -611,18 +610,17 @@ if(_debug) fprintf(stderr," ===FINAL: before calling >>> depth %lf surface %lf u
       gcoor[1]=round((entry->coor_utm[1]-hr_a.O[1])/step_hr[1]);
       gcoor[2]=round((entry->coor_utm[2]-hr_a.O[2])/step_hr[2]);
       
-if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d) with utm(%f %f %f)\n", 
+if(_debug) { fprintf(stderr,"  >Look in HR area..gcoor(%d %d %d) with utm(%f %f %f)\n", 
                               gcoor[0],gcoor[1],gcoor[2], entry->coor_utm[0],
                                            entry->coor_utm[1], entry->coor_utm[2]); }
 
       if(gcoor[0]>=0&&gcoor[1]>=0&&gcoor[2]>=0&&
 	 gcoor[0]<hr_a.N[0]&&gcoor[1]<hr_a.N[1]&&gcoor[2]<hr_a.N[2]) {
-if(_debug) { fprintf(stderr,"   >Looking in HR area..gcoor(%d %d %d)\n", gcoor[0],gcoor[1],gcoor[2]); }
 	/* AP: And here are the cell centers*/
 	entry->vel_cell[0]= hr_a.O[0]+gcoor[0]*step_hr[0];
 	entry->vel_cell[1]= hr_a.O[1]+gcoor[1]*step_hr[1];
 	entry->vel_cell[2]= hr_a.O[2]+gcoor[2]*step_hr[2];
-if(_debug) { fprintf(stderr,"  >with entry_vel_cell, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
+if(_debug) { fprintf(stderr,"  >with entry_vel_cell cell center, %f %f %f\n", entry->vel_cell[0], entry->vel_cell[1], entry->vel_cell[2]); }
 	j=voxbytepos(gcoor,hr_a.N,p_vp63_basin.ESIZE);
 	memcpy(&(entry->provenance), &hrtbuffer[j], p0_ESIZE);
 	memcpy(&(entry->vp), &hrbuffer[j], p_vp63_basin.ESIZE);
@@ -635,7 +633,7 @@ if(cvmhsgbn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor
          entry->depth = surface - entry->coor_utm[2];
 
 if(_debug) fprintf(stderr," === Woohoo depth(%lf)surf(%lf)-utm2(%lf) \n", entry->depth, surface,entry->coor_utm[2]);
-if(cvmhsgbn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
+if(_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
         do_bkg = True;

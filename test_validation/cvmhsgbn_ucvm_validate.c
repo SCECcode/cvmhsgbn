@@ -9,7 +9,7 @@
  *
  *  ./cvmhsgbn_ucvm_validate -e -c ucvm.conf -f validate_api_good.txt
  *
- *  test 2 mode: query-by-elevation and query-by-depth
+ *  test mode: query-by-depth
  */
 
 #include <stdlib.h>
@@ -26,7 +26,6 @@
 #define NUM_POINTS 10000
 
 int validate_debug = 0;
-int by_elevation = 0;
 
 // from gctpc
 void gctp();
@@ -220,7 +219,6 @@ void usage() {
   printf("X Y Z depth columns. Z is expressed as elevation by default.\n\n");
   printf("\tusage: vx_cvmhsgbn_validate [-d] -c ucvm.conf -f file.dat\n\n");
   printf("Flags:\n");
-  printf("\t-e by_elevation\n\n");
   printf("\t-c ucvm.conf\n\n");
   printf("\t-f point.dat\n\n");
   printf("\t-d enable debug/verbose mode\n\n");
@@ -266,9 +264,6 @@ int main(int argc, char* const argv[]) {
         /* Parse options */
         while ((opt = getopt(argc, argv, "edf:c:h")) != -1) {
           switch (opt) {
-          case 'e':
-            by_elevation=1;
-            break;
           case 'c':
             strcpy(configfile, optarg);
             break;
@@ -303,14 +298,10 @@ int main(int argc, char* const argv[]) {
           return(1);
         }
 
-        /* Set z mode for depth*/
-        if(by_elevation) { cmode=UCVM_COORD_GEO_ELEV; }
-
         if (ucvm_setparam(UCVM_PARAM_QUERY_MODE, cmode) != UCVM_CODE_SUCCESS) {
           fprintf(stderr, "Failed to set z mode\n");
           return(1);
         }
-
 
         /* Allocate buffers */
         dat = malloc(NUM_POINTS * sizeof(dat_data_t));
@@ -333,9 +324,6 @@ fprintf(stderr,"lon %lf lat %lf dep %lf z %lf\n", dat[idx].lon, dat[idx].lat, da
               pnts[idx].coord[0]=dat[idx].lon;
               pnts[idx].coord[1]=dat[idx].lat;
               pnts[idx].coord[2]=dat[idx].depth;
-              if(by_elevation) {
-                pnts[idx].coord[2]=dat[idx].z;
-              }
               idx++;
 
               if(idx == NUM_POINTS) {

@@ -15,8 +15,7 @@ typedef enum { VX_SRC_NR = 0,
 // already processed as (ucvm surface - elevation)
 // so it is a depth
 typedef enum { VX_ZMODE_DEPTH = 0, 
-	       VX_ZMODE_ELEV, 
-               VX_ZMODE_OTHER_ELEV } vx_zmode_t;
+	       VX_ZMODE_ELEV } vx_zmode_t;
 
 typedef enum { VX_COORD_GEO = 0, VX_COORD_UTM } vx_coord_t;
 
