@@ -75,6 +75,11 @@ static char *hrvsbuffer = NULL;
 /* Data source labels */
 char *VX_SRC_NAMES[7] = {"nr", "hr", "lr", "cm", "to", "bk", "gt"};
 
+int vx_round(double v) {
+  double r=round(v*10.0);
+  int rval=round(r/10.0);
+  return rval;
+}
 
 /* Setup function to be called prior to querying points */
 int vx_setup(const char *data_dir)

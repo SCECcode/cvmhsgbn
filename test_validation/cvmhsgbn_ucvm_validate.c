@@ -357,6 +357,13 @@ int main(int argc, char* const argv[]) {
               fprintf(stderr, "Query CVM Failed\n");
               return(1);
             }
+
+if(validate_debug) {
+  fprintf(stderr,"\n>>UCVM props coming back.. surf(%lf) vs30(%lf) depth(%lf) \n", props[0].surf, props[0].vs30, props[0].depth);
+  fprintf(stderr,">>UCVM props coming back.. vs(%lf) vp(%lf) rho(%lf) \n", props[0].cmb.vs, props[0].cmb.vp, props[0].cmb.rho);
+  fprintf(stderr,">>UCVM pnts coming back.. x(%lf) y(%lf) z(%lf) \n", pnts[0].coord[0], pnts[0].coord[1], pnts[0].coord[2]);
+}
+          
             // compare result
             // is result matching ?
             for(int j=0; j<idx; j++) {
