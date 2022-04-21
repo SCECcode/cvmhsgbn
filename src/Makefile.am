@@ -23,6 +23,7 @@ install:
 	mkdir -p ${prefix}/lib
 	mkdir -p ${prefix}/include
 	cp libcvmhsgbn.so ${prefix}/lib
+	cp libvxapi_cvmhsgbn.a ${prefix}/lib
 	cp libcvmhsgbn.a ${prefix}/lib
 	cp cvmhsgbn.h ${prefix}/include
 

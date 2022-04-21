@@ -101,7 +101,9 @@ int main(int argc, char* const argv[]) {
         }
 	printf("Loaded the model successfully.\n");
 
-        assert(cvmhsgbn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
+
+        // going to process everything as depth search
+        assert(cvmhsgbn_setparam(0, UCVM_PARAM_QUERY_MODE, UCVM_COORD_GEO_DEPTH) == 0);
 	printf("Set model zmode successfully.\n");
 
         char line[2001];

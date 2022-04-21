@@ -122,7 +122,7 @@ int vx_setup(const char *data_dir)
 
   HighRes_z=hr_a.O[2]; // deepest part of volume
 
-  if(_debug) {
+  if(cvmhsgbn_debug) {
     fprintf(stderr," From:\n");
     fprintf(stderr,"    hr_a.O %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
     fprintf(stderr,"    hr_a.U %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
@@ -160,7 +160,7 @@ int vx_setup(const char *data_dir)
       hr_a.V[0]=vmax0hr; hr_a.V[1]=vmax1hr; hr_a.V[2]=vmax2hr;
       hr_a.W[0]=wmax0hr; hr_a.W[1]=wmax1hr; hr_a.W[2]=wmax2hr;
 
-      if(_debug) {
+      if(cvmhsgbn_debug) {
         fprintf(stderr,">>>Info: newly  calculated HR ------\n");
         fprintf(stderr," origin %.0f %.0f %.0f\n", hr_a.O[0],hr_a.O[1],hr_a.O[2]);
         fprintf(stderr," umax %.0f %.0f %.0f\n", hr_a.U[0],hr_a.U[1],hr_a.U[2]);
@@ -170,7 +170,7 @@ int vx_setup(const char *data_dir)
       }
 
       } else { // get the info out
-        if(_debug) {
+        if(cvmhsgbn_debug) {
           step0hr=((hr_a.MAX[0] - hr_a.MIN[0]) * hr_a.U[0]) / (hr_a.N[0]-1);
           step1hr=((hr_a.MAX[1] - hr_a.MIN[1]) * hr_a.V[1]) / (hr_a.N[1]-1);
           step2hr=((hr_a.MAX[2] - hr_a.MIN[2]) * hr_a.W[2]) / (hr_a.N[2]-1);
@@ -193,7 +193,7 @@ int vx_setup(const char *data_dir)
   vx_io_getpropsize("PROP_ESIZE",pkey,&p_vp63_basin.ESIZE);
   vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vp63_basin.NO_DATA_VALUE);
 
-  if(_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p_vp63_basin.FN); }
+  if(cvmhsgbn_debug) { fprintf(stderr,"using HR VP file ..%s\n\n",p_vp63_basin.FN); }
 
   hrbuffer=(char *)malloc(NCells*p_vp63_basin.ESIZE);
   if (hrbuffer == NULL) {
@@ -214,7 +214,7 @@ int vx_setup(const char *data_dir)
   vx_io_getpropsize("PROP_ESIZE",pkey,&p_tag61_basin.ESIZE);
   vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_tag61_basin.NO_DATA_VALUE);
 
-if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p_tag61_basin.FN); }
+if(cvmhsgbn_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p_tag61_basin.FN); }
 
   hrtbuffer=(char *)malloc(NCells*p_tag61_basin.ESIZE);
   if (hrtbuffer == NULL) {
@@ -235,7 +235,7 @@ if(_debug) {fprintf(stderr,"using HR TAG file..%s\n\n",p_tag61_basin.FN); }
   vx_io_getpropsize("PROP_ESIZE",pkey,&p_vs63_basin.ESIZE);
   vx_io_getpropval("PROP_NO_DATA_VALUE",pkey,&p_vs63_basin.NO_DATA_VALUE);
 
-if(_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p_vs63_basin.FN); }
+if(cvmhsgbn_debug) {fprintf(stderr,"using HR VS file..%s\n\n",p_vs63_basin.FN); }
 
   hrvsbuffer=(char *)malloc(NCells*p_vs63_basin.ESIZE);
   if (hrvsbuffer == NULL) {
@@ -411,7 +411,7 @@ if(_debug) fprintf(stderr,"CALLING --- vx_getcoord_private (enhanced %d)\n",enha
   int gcoor[3];
   // fall into bkg
   int do_bkg = False;
-  float surface;
+  float surface=0.0;
   double elev, depth, zt, topo_gap;
   double incoor[3];
 
@@ -634,7 +634,7 @@ if(cvmhsgbn_debug) { fprintf(stderr,"  >FOUND IN HR but NODATA>>>>>> j(%d) gcoor
          entry->data_src = VX_SRC_HR;
          entry->depth = surface - entry->coor_utm[2];
 
-if(_debug) fprintf(stderr," === Woohoo depth(%lf) \n", entry->depth);
+if(_debug) fprintf(stderr," === Woohoo depth(%lf)surf(%lf)-utm2(%lf) \n", entry->depth, surface,entry->coor_utm[2]);
 if(cvmhsgbn_debug) { fprintf(stderr,"  >DONE(In HR)>>>>>> j(%d) gcoor(%d %d %d) vp(%f) vs(%f)\n",j, gcoor[0], gcoor[1], gcoor[2], entry->vp, entry->vs); }
 
       } else {	  
@@ -772,15 +772,15 @@ if(cvmhsgbn_debug) fprintf(stderr,"CALLING -- vx_getsurface_private\n");
     break;
   }
 
-  gcoor[0]=round((entry.coor_utm[0]-to_a.O[0])/step_to[0]);
-  gcoor[1]=round((entry.coor_utm[1]-to_a.O[1])/step_to[1]);
+  gcoor[0]=vx_round((entry.coor_utm[0]-to_a.O[0])/step_to[0]);
+  gcoor[1]=vx_round((entry.coor_utm[1]-to_a.O[1])/step_to[1]);
   gcoor[2]=0;
     
   /* check if inside topo volume */
   if(gcoor[0]>=0&&gcoor[1]>=0&&
      gcoor[0]<to_a.N[0]&&gcoor[1]<to_a.N[1]) {	      
 
-if(cvmhsgbn_debug) fprintf(stderr," SURFACE: in topo gcoor(%d,%d,%d)\n",gcoor[0],gcoor[1],gcoor[2]);
+if(_debug) fprintf(stderr,"==SURFACE: in topo gcoor(%d,%d,%d)\n",gcoor[0],gcoor[1],gcoor[2]);
 
     j=voxbytepos(gcoor,to_a.N,p_topo_dem.ESIZE);
     memcpy(&(entry.topo), &tobuffer[j], p_topo_dem.ESIZE);
@@ -806,7 +806,7 @@ if(cvmhsgbn_debug) fprintf(stderr," SURFACE: in topo gcoor(%d,%d,%d)\n",gcoor[0]
 	int num_iter = 0;
 	entry.coor[2] = *surface;
 	while (!flag) {
-if(cvmhsgbn_debug) fprintf(stderr," SURFACE: (%d)LOOPING in here %lf\n", num_iter,entry.coor[2]);
+if(_debug) fprintf(stderr,"==SURFACE: (%d)LOOPING in here starter surface>%lf\n", num_iter,entry.coor[2]);
 
 	  num_iter = num_iter + 1;
 	  vx_getcoord_private(&entry, False);
@@ -817,7 +817,7 @@ if(cvmhsgbn_debug) fprintf(stderr," SURFACE: (%d)LOOPING in here %lf\n", num_ite
             if( *surface < HighRes_z ) {
 	      *surface = p0_NO_DATA_VALUE;
               flag=1;
-if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: HIT the bottom set to NO_DATA_VALUE\n");
+if(cvmhsgbn_debug) fprintf(stderr,"==SURFACE: HIT the bottom set to NO_DATA_VALUE\n");
               } else { 
 	        switch (entry.data_src) {
 	        case VX_SRC_HR:
@@ -833,9 +833,9 @@ if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: HIT the bottom set to NO_DATA_VALUE\
 	    *surface = entry.coor[2];
 	    flag = 1;
 	  }
-if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: LOOPING checked %lf\n", entry.coor[2]);
+if(_debug) fprintf(stderr,"==SURFACE: LOOPING checked %lf\n", entry.coor[2]);
 	}
-if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: LOOPING is over %lf\n", entry.coor[2]);
+if(_debug) fprintf(stderr,"==SURFACE: LOOPING is over %lf\n", entry.coor[2]);
       } else {
 	do_bkg = True;
       }
@@ -849,7 +849,7 @@ if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: LOOPING is over %lf\n", entry.coor[2
     *surface = p0_NO_DATA_VALUE;
 if(cvmhsgbn_debug) fprintf(stderr,"SURFACE: do_bkg set to NO_DATA_VALUE\n");
   }
-if(_debug)  fprintf(stderr,"DONE -- SURFACE: vx_getsurface_private surface found=%lf\n", *surface);
+if(_debug)  fprintf(stderr,"==SURFACE: DONE, vx_getsurface_private surface found=%lf\n", *surface);
 
   return(0);
 }

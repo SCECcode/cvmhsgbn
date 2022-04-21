@@ -1,0 +1,16 @@
+##
+##  validate using UCVM 
+##
+make clean
+make cvmhsgbn_ucvm_validate
+
+if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
+  SCRIPT_DIR=${UCVM_INSTALL_PATH}/bin
+  source $SCRIPT_DIR/../conf/ucvm_env.sh
+  echo "query by elevation"
+#  ./cvmhsgbn_ucvm_validate -d -e -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./i
+#  echo "query by depth"
+  ./cvmhsgbn_ucvm_validate -d -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./i
+  else
+    echo "need to have UCVM_INSTALL_PATH set!!!"
+fi

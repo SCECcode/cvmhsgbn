@@ -62,41 +62,49 @@ FILE *_process_datfile(char *fname) {
     fprintf(stderr,"CVMHSGBN_VALIDATE_API: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
+
+  int done=0;
+  while(!done) {
+  
   /* read the title line */
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"CVMHSGBN_VALIDATE_API: FAIL: Unable to extract validation data file %s\n", fname);
-    fclose(fp);
-    exit(1);
-  }
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      fprintf(stderr,"CVMHSGBN_VALIDATE_API: FAIL: Unable to extract validation data file %s\n", fname);
+      fclose(fp);
+      exit(1);
+    }
 
-  /* Strip terminating newline */
-  int slen = strlen(dat_line);
-  if ((slen > 0) && (dat_line[slen-1] == '\n')) {
-    dat_line[slen-1] = '\0';
-  }
-
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
-
-// X,Y,Z,depth,vp63_basin,vs63_basin
-  while(p != NULL)
-  {
-    if(validate_debug) { printf("CVMHSGBN_VALIDATE_API:'%s'\n", p); }
-    if(strcmp(p,"X")==0)
-      dat_entry.x_idx=counter;
-    else if(strcmp(p,"Y")==0)
-      dat_entry.y_idx=counter;
-    else if(strcmp(p,"Z")==0)
-      dat_entry.z_idx=counter;
-    else if(strcmp(p,"vp63_basin")==0)
-      dat_entry.vp_idx=counter;
-    else if(strcmp(p,"vs63_basin")==0)
-      dat_entry.vs_idx=counter;
-    else if(strcmp(p,"depth")==0)
-      dat_entry.depth_idx=counter;
-    p = strtok(NULL, delimiter);
-    counter++;
+    if(dat_line[0]=='#') continue;
+    done=1;
+  
+    /* Strip terminating newline */
+    int slen = strlen(dat_line);
+    if ((slen > 0) && (dat_line[slen-1] == '\n')) {
+      dat_line[slen-1] = '\0';
+    }
+  
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+  // X,Y,Z,depth,vp63_basin,vs63_basin
+    while(p != NULL)
+    {
+      if(validate_debug) { printf("CVMHSGBN_VALIDATE_API:'%s'\n", p); }
+      if(strcmp(p,"X")==0)
+        dat_entry.x_idx=counter;
+      else if(strcmp(p,"Y")==0)
+        dat_entry.y_idx=counter;
+      else if(strcmp(p,"Z")==0)
+        dat_entry.z_idx=counter;
+      else if(strcmp(p,"vp63_basin")==0)
+        dat_entry.vp_idx=counter;
+      else if(strcmp(p,"vs63_basin")==0)
+        dat_entry.vs_idx=counter;
+      else if(strcmp(p,"depth")==0)
+        dat_entry.depth_idx=counter;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return fp;
 }
@@ -104,32 +112,38 @@ FILE *_process_datfile(char *fname) {
 int _next_datfile(FILE *fp, dat_data_t *dat) {
 
   char dat_line[1028];
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    return(1); 
-  }
+  int done=0;
 
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
+  while(!done) {
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      return(1); 
+    }
+    if(dat_line[0]=='#') continue;
+    done=1;
 
-//X,Y,Z,depth,vp63_basin,vs63_basin
-//383000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
-  while(p != NULL) {
-    double val = atof(p);
-    if(counter == dat_entry.x_idx)
-        dat->x=val;
-      else if (counter == dat_entry.y_idx)
-        dat->y=val;
-      else if (counter == dat_entry.z_idx)
-        dat->z=val;
-      else if (counter == dat_entry.vs_idx)
-        dat->vs=val;
-      else if (counter == dat_entry.vp_idx)
-        dat->vp=val;
-      else if (counter == dat_entry.depth_idx)
-        dat->depth=val;
-    p = strtok(NULL, delimiter);
-    counter++;
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+  //X,Y,Z,depth,vp63_basin,vs63_basin
+  //383000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
+    while(p != NULL) {
+      double val = atof(p);
+      if(counter == dat_entry.x_idx)
+          dat->x=val;
+        else if (counter == dat_entry.y_idx)
+          dat->y=val;
+        else if (counter == dat_entry.z_idx)
+          dat->z=val;
+        else if (counter == dat_entry.vs_idx)
+          dat->vs=val;
+        else if (counter == dat_entry.vp_idx)
+          dat->vp=val;
+        else if (counter == dat_entry.depth_idx)
+          dat->depth=val;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return(0);
 }

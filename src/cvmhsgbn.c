@@ -112,11 +112,13 @@ int cvmhsgbn_setparam(int id, int param, ...)
         case UCVM_COORD_GEO_ELEV:
 /*****
 even if ucvm_query set elevation mode, still need to run as depth
-          cvmhsgbn_zmode = VX_ZMODE_ELEV;
-*****/
+from ucvm_query, the depth is already proprocessed with (ucvm_surface - elevation)
+****/
+          cvmhsgbn_zmode = VX_ZMODE_DEPTH;
           if(cvmhsgbn_ucvm_debug) fprintf(stderr,"calling cvmhsgbn_setparam >>  elevation\n");
           break;
-        default:
+        default: // when set with VX_ZMODE_OTHER_ELEV
+          cvmhsgbn_zmode = VX_ZMODE_ELEV;
           break;
        }
        vx_setzmode(cvmhsgbn_zmode);
@@ -140,10 +142,17 @@ int cvmhsgbn_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int nu
   // setup >> points -> entry (assume always Q in depth)
   // retrieve >> entry -> data
 
+//  if(cvmhsgbn_zmode == VX_ZMODE_ELEV) { fprintf(stderr,"cvmhsgbn_query: ZMODE= elev\n"); }
+//  if(cvmhsgbn_zmode == VX_ZMODE_DEPTH) { fprintf(stderr,"cvmhsgbn_query: ZMODE= dep\n"); }
+
   for(int i=0; i<numpoints; i++) {
       vx_entry_t entry;
       float vx_surf=0.0;
 
+if(cvmhsgbn_ucvm_debug) {
+fprintf(stderr,"\n **** get incoming DATA ..(%lf %lf %lf) \n",
+                  points[i].longitude, points[i].latitude, points[i].depth);
+}
     /*
        By the time here, Conditions:
 
@@ -156,6 +165,7 @@ int cvmhsgbn_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int nu
       /* Force depth mode if directed and point is above surface */
       if ((cvmhsgbn_force_depth) && (cvmhsgbn_zmode == VX_ZMODE_ELEV) &&
           (points[i].depth < 0.0)) {
+fprintf(stderr," **** in HERE looking for a new surface ..\n");
         /* Setup point to query */
         entry.coor[0]=points[i].longitude;
         entry.coor[1]=points[i].latitude;
@@ -192,15 +202,15 @@ int cvmhsgbn_query(cvmhsgbn_point_t *points, cvmhsgbn_properties_t *data, int nu
       int rc=vx_getcoord(&entry);
 
       if(cvmhsgbn_ucvm_debug) {
-        printf("||lonlat(%.6f %.6f %.4f)\n",
+        printf("X||lonlat(%.6f %.6f %.4f)\n",
                entry.coor[0], entry.coor[1], entry.coor[2]);
         /* AP: Let's provide the computed UTM coordinates as well */
-        printf("||utm(%.2f %.2f)\n", entry.coor_utm[0], entry.coor_utm[1]);
-        printf("||elev_cell(%10.2f %11.2f)\n", entry.elev_cell[0], entry.elev_cell[1]);
-        printf("||topo(%.2f) mtop(%.2f) base(%.2f) moho(%.2f)\n", entry.topo, entry.mtop, entry.base, entry.moho);
-        printf("||src(%s) vel_cell(%.2f %.2f %.2f) provenance(%.2f)\n", VX_SRC_NAMES[entry.data_src], 
+        printf("X||utm(%.2f %.2f)\n", entry.coor_utm[0], entry.coor_utm[1]);
+        printf("X||elev_cell(%10.2f %11.2f)\n", entry.elev_cell[0], entry.elev_cell[1]);
+        printf("X||topo(%.2f) mtop(%.2f) base(%.2f) moho(%.2f)\n", entry.topo, entry.mtop, entry.base, entry.moho);
+        printf("X||src(%s) vel_cell(%.2f %.2f %.2f) provenance(%.2f)\n", VX_SRC_NAMES[entry.data_src], 
             entry.vel_cell[0], entry.vel_cell[1], entry.vel_cell[2], entry.provenance);
-        printf("||vp(%.4f) vs(%.4f) rho(%.4f)\n", entry.vp, entry.vs, entry.rho);
+        printf("X||vp(%.4f) vs(%.4f) rho(%.4f)\n", entry.vp, entry.vs, entry.rho);
       }
 
       if(cvmhsgbn_ucvm_debug) {

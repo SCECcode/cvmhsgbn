@@ -7,7 +7,7 @@
  * Tests the CVMHSGBN library by running with UCVM
  *
  *
- *  ./cvmhsgbn_ucvm_validate -c ucvm.conf -f validate_api_good.txt
+ *  ./cvmhsgbn_ucvm_validate -e -c ucvm.conf -f validate_api_good.txt
  *
  *  test 2 mode: query-by-elevation and query-by-depth
  */
@@ -26,6 +26,7 @@
 #define NUM_POINTS 10000
 
 int validate_debug = 0;
+int by_elevation = 0;
 
 // from gctpc
 void gctp();
@@ -113,76 +114,89 @@ FILE *_process_datfile(char *fname) {
     fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
+
+  int done=0;
+  while(!done) {
+
   /* read the title line */
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to extract validation data file %s\n", fname);
-    fclose(fp);
-    exit(1);
-  }
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      fprintf(stderr,"VALIDATE_UCVM: FAIL: Unable to extract validation data file %s\n", fname);
+      fclose(fp);
+      exit(1);
+    }
+
+    if(dat_line[0]=='#') continue;
+    done=1;
 
   /* Strip terminating newline */
-  int slen = strlen(dat_line);
-  if ((slen > 0) && (dat_line[slen-1] == '\n')) {
-    dat_line[slen-1] = '\0';
-  }
+    int slen = strlen(dat_line);
+    if ((slen > 0) && (dat_line[slen-1] == '\n')) {
+      dat_line[slen-1] = '\0';
+    }
 
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
-
-// X,Y,Z,depth,vp63_basin,vs63_basin
-  while(p != NULL)
-  {
-    if(validate_debug) { printf("VALIDATE_UCVM:'%s'\n", p); }
-    if(strcmp(p,"X")==0)
-      dat_entry.x_idx=counter;
-    else if(strcmp(p,"Y")==0)
-      dat_entry.y_idx=counter;
-    else if(strcmp(p,"Z")==0)
-      dat_entry.z_idx=counter;
-    else if(strcmp(p,"vp63_basin")==0)
-      dat_entry.vp_idx=counter;
-    else if(strcmp(p,"vs63_basin")==0)
-      dat_entry.vs_idx=counter;
-    else if(strcmp(p,"depth")==0)
-      dat_entry.depth_idx=counter;
-    p = strtok(NULL, delimiter);
-    counter++;
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+  // X,Y,Z,depth,vp63_basin,vs63_basin
+    while(p != NULL)
+    {
+      if(validate_debug) { printf("VALIDATE_UCVM:'%s'\n", p); }
+      if(strcmp(p,"X")==0)
+        dat_entry.x_idx=counter;
+      else if(strcmp(p,"Y")==0)
+        dat_entry.y_idx=counter;
+      else if(strcmp(p,"Z")==0)
+        dat_entry.z_idx=counter;
+      else if(strcmp(p,"vp63_basin")==0)
+        dat_entry.vp_idx=counter;
+      else if(strcmp(p,"vs63_basin")==0)
+        dat_entry.vs_idx=counter;
+      else if(strcmp(p,"depth")==0)
+        dat_entry.depth_idx=counter;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
   }
   return fp;
 }
-
 int _next_datfile(FILE *fp, dat_data_t *dat) {
 
   char dat_line[1028];
-  if (fgets(dat_line, 1028, fp) == NULL) {
-    return(1); 
-  }
+  int done=0;
 
-  char delimiter[] = ",";
-  char *p = strtok(dat_line, delimiter);
-  int counter=0;
+  while(!done) {
+    if (fgets(dat_line, 1028, fp) == NULL) {
+      return(1); 
+    }
+    if(dat_line[0]=='#') continue;
+    done=1;
 
-//X,Y,Z,depth,vp63_basin,vs63_basin
-//383000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
-  while(p != NULL) {
-    double val = atof(p);
-    if(counter == dat_entry.x_idx)
-        dat->x=val;
-      else if (counter == dat_entry.y_idx)
-        dat->y=val;
-      else if (counter == dat_entry.z_idx)
-        dat->z=val;
-      else if (counter == dat_entry.vs_idx)
-        dat->vs=val;
-      else if (counter == dat_entry.vp_idx)
-        dat->vp=val;
-      else if (counter == dat_entry.depth_idx)
-        dat->depth=val;
-    p = strtok(NULL, delimiter);
-    counter++;
+    char delimiter[] = ",";
+    char *p = strtok(dat_line, delimiter);
+    int counter=0;
+  
+  //X,Y,Z,depth,vp63_basin,vs63_basin
+  //383000.000000,3744000.000000,-15000.000000,0.000000,-99999.000000,-99999.000000
+    while(p != NULL) {
+      double val = atof(p);
+      if(counter == dat_entry.x_idx)
+          dat->x=val;
+        else if (counter == dat_entry.y_idx)
+          dat->y=val;
+        else if (counter == dat_entry.z_idx)
+          dat->z=val;
+        else if (counter == dat_entry.vs_idx)
+          dat->vs=val;
+        else if (counter == dat_entry.vp_idx)
+          dat->vp=val;
+        else if (counter == dat_entry.depth_idx)
+          dat->depth=val;
+      p = strtok(NULL, delimiter);
+      counter++;
+    }
+    utm2geo(dat->x,dat->y,&dat->lon,&dat->lat);
   }
-  utm2geo(dat->x,dat->y,&dat->lon,&dat->lat);
   return(0);
 }
 
@@ -206,6 +220,7 @@ void usage() {
   printf("X Y Z depth columns. Z is expressed as elevation by default.\n\n");
   printf("\tusage: vx_cvmhsgbn_validate [-d] -c ucvm.conf -f file.dat\n\n");
   printf("Flags:\n");
+  printf("\t-e by_elevation\n\n");
   printf("\t-c ucvm.conf\n\n");
   printf("\t-f point.dat\n\n");
   printf("\t-d enable debug/verbose mode\n\n");
@@ -249,8 +264,11 @@ int main(int argc, char* const argv[]) {
         fprintf(dfp,"id,X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs,surf\n");
 
         /* Parse options */
-        while ((opt = getopt(argc, argv, "df:c:h")) != -1) {
+        while ((opt = getopt(argc, argv, "edf:c:h")) != -1) {
           switch (opt) {
+          case 'e':
+            by_elevation=1;
+            break;
           case 'c':
             strcpy(configfile, optarg);
             break;
@@ -286,6 +304,8 @@ int main(int argc, char* const argv[]) {
         }
 
         /* Set z mode for depth*/
+        if(by_elevation) { cmode=UCVM_COORD_GEO_ELEV; }
+
         if (ucvm_setparam(UCVM_PARAM_QUERY_MODE, cmode) != UCVM_CODE_SUCCESS) {
           fprintf(stderr, "Failed to set z mode\n");
           return(1);
@@ -304,11 +324,18 @@ int main(int argc, char* const argv[]) {
               rc=_next_datfile(fp, &dat[idx]); 
               if(rc) continue;
 
-              if(validate_debug) fprintf(stderr,"lon %lf lat %lf dep %lf\n", dat[idx].lon, dat[idx].lat, dat[idx].depth);
+if(validate_debug) {
+fprintf(stderr,"lon %lf lat %lf dep %lf z %lf\n", dat[idx].lon, dat[idx].lat, dat[idx].depth, dat[idx].z);
+}
+
               tcount++;
+
               pnts[idx].coord[0]=dat[idx].lon;
               pnts[idx].coord[1]=dat[idx].lat;
               pnts[idx].coord[2]=dat[idx].depth;
+              if(by_elevation) {
+                pnts[idx].coord[2]=dat[idx].z;
+              }
               idx++;
 
               if(idx == NUM_POINTS) {
@@ -353,17 +380,19 @@ int main(int argc, char* const argv[]) {
         }
         if(idx > 0) {
             /* Query the UCVM */
+if(validate_debug) {
+fprintf(stderr," V|| pnts >> x(%lf) y(%lf) z(%lf) \n", pnts[0].coord[0], pnts[0].coord[1], pnts[0].coord[2]);
+}
+
             if (ucvm_query(idx, pnts, props) != UCVM_CODE_SUCCESS) {
               fprintf(stderr, "Query CVM Failed\n");
               return(1);
             }
-
 if(validate_debug) {
-  fprintf(stderr,"\n>>UCVM props coming back.. surf(%lf) vs30(%lf) depth(%lf) \n", props[0].surf, props[0].vs30, props[0].depth);
-  fprintf(stderr,">>UCVM props coming back.. vs(%lf) vp(%lf) rho(%lf) \n", props[0].cmb.vs, props[0].cmb.vp, props[0].cmb.rho);
-  fprintf(stderr,">>UCVM pnts coming back.. x(%lf) y(%lf) z(%lf) \n", pnts[0].coord[0], pnts[0].coord[1], pnts[0].coord[2]);
+fprintf(stderr," V|| pnts  << x(%lf) y(%lf) z(%lf) \n", pnts[0].coord[0], pnts[0].coord[1], pnts[0].coord[2]);
+fprintf(stderr," V|| props << surf(%lf) vs30(%lf) depth(%lf) \n", props[0].surf, props[0].vs30, props[0].depth);
+fprintf(stderr," V|| props << vp(%lf) vs(%lf) rho(%lf) \n", props[0].cmb.vp, props[0].cmb.vs, props[0].cmb.rho);
 }
-          
             // compare result
             // is result matching ?
             for(int j=0; j<idx; j++) {
@@ -381,16 +410,16 @@ if(validate_debug) {
                       dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
                       dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
                       mcount++;
-                 }
-                } else {
-                  okcount++;
-                  fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
-                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
-                  fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                      fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                           tcount,
                           dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
                           dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,props[j].surf);
+                 }
+                } else {
+                  okcount++;
+                  fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
 
               }
             }
