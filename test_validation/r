@@ -10,7 +10,7 @@ if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
   echo "query by elevation"
 #  ./cvmhsgbn_ucvm_validate -d -e -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./i
 #  echo "query by depth"
-  ./cvmhsgbn_ucvm_validate -d -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./i
+  ./cvmhsgbn_ucvm_validate -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./i
   else
     echo "need to have UCVM_INSTALL_PATH set!!!"
 fi

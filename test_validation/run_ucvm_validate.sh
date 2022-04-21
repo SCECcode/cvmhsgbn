@@ -11,10 +11,8 @@ fi
 if [ "x${UCVM_INSTALL_PATH}" != "x" ] ; then
   SCRIPT_DIR=${UCVM_INSTALL_PATH}/bin
   source $SCRIPT_DIR/../conf/ucvm_env.sh
-echo "query by depth"
+echo "query by depth only"
   ./cvmhsgbn_ucvm_validate -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./validate_api_good.txt
-#echo "query by elevation"
-#  ./cvmhsgbn_ucvm_validate -e -c ${SCRIPT_DIR}/../conf/ucvm.conf -f ./validate_api_good.txt
   else
     echo "need to have UCVM_INSTALL_PATH set!!!"
 fi

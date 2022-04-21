@@ -254,12 +254,16 @@ int main(int argc, char* const argv[]) {
         int mmcount=0; // fake mismatch -- no data
         int okcount=0;
 
+        double cvmh_surface=0.0;
+        double ucvm_surface=0.0;
+        double ucvm_depth=0.0;
+
         FILE *ofp= fopen("validate_ucvm_bad.txt","w");
         fprintf(ofp,"X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs\n");
         FILE *oofp= fopen("validate_ucvm_good.txt","w");
         fprintf(oofp,"X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs\n");
         FILE *dfp= fopen("validate_ucvm_debug.txt","w");
-        fprintf(dfp,"id,X,Y,Z,lon,lat,depth,vp63_basin,vs63_basin,vp,vs,surf\n");
+        fprintf(dfp,"id,X,Y,Z,lon,lat,vp63_basin,vs63_basin,vp,vs,cvmh_surf,depth,ucvm_surf,ucvm_depth\n");
 
         /* Parse options */
         while ((opt = getopt(argc, argv, "edf:c:h")) != -1) {
@@ -332,10 +336,16 @@ fprintf(stderr,"lon %lf lat %lf dep %lf z %lf\n", dat[idx].lon, dat[idx].lat, da
                   fprintf(stderr, "Query CVM Failed\n");
                   return(1);
                 }
+      
                 // compare result
                 idx=0;
                 // is result matching ?
                 for(int j=0; j<NUM_POINTS; j++) {
+
+                  ucvm_surface=props[j].surf;
+                  ucvm_depth=ucvm_surface - dat[j].z;
+                  cvmh_surface=dat[j].z + dat[j].depth;
+
                   if(_compare_double(props[j].cmb.vs, dat[j].vs) || _compare_double(props[j].cmb.vp, dat[j].vp)) { 
 
                      // okay if ( dat[j].vp == -99999, dat[j].vs== -99999 ) and (props[j].cmb.vs == 0, props[j].cmb.vp == 0)
@@ -349,10 +359,11 @@ fprintf(stderr,"lon %lf lat %lf dep %lf z %lf\n", dat[idx].lon, dat[idx].lat, da
                           fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                           dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
                           dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
-                          fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                          fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                           tcount,
-                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
-                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,props[j].surf);
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,
+                          cvmh_surface, dat[j].depth, ucvm_surface, ucvm_depth);
                           mcount++;
                      }
 
@@ -376,14 +387,21 @@ fprintf(stderr," V|| pnts >> x(%lf) y(%lf) z(%lf) \n", pnts[0].coord[0], pnts[0]
               fprintf(stderr, "Query CVM Failed\n");
               return(1);
             }
-if(validate_debug) {
-fprintf(stderr," V|| pnts  << x(%lf) y(%lf) z(%lf) \n", pnts[0].coord[0], pnts[0].coord[1], pnts[0].coord[2]);
-fprintf(stderr," V|| props << surf(%lf) vs30(%lf) depth(%lf) \n", props[0].surf, props[0].vs30, props[0].depth);
-fprintf(stderr," V|| props << vp(%lf) vs(%lf) rho(%lf) \n", props[0].cmb.vp, props[0].cmb.vs, props[0].cmb.rho);
-}
+
             // compare result
             // is result matching ?
             for(int j=0; j<idx; j++) {
+
+if(validate_debug && j==0) {
+fprintf(stderr," VV|| pnts  << x(%lf) y(%lf) z(%lf) \n", pnts[j].coord[0], pnts[j].coord[1], pnts[j].coord[2]);
+fprintf(stderr," VV|| props << surf(%lf) vs30(%lf) depth(%lf) \n", props[j].surf, props[j].vs30, props[j].depth);
+fprintf(stderr," Vv|| props << vp(%lf) vs(%lf) rho(%lf) \n", props[j].cmb.vp, props[j].cmb.vs, props[j].cmb.rho);
+}
+
+              ucvm_surface=props[j].surf;
+              ucvm_depth=ucvm_surface - dat[j].z;
+              cvmh_surface=dat[j].z + dat[j].depth;
+
               if(_compare_double(props[j].cmb.vs, dat[j].vs) || _compare_double(props[j].cmb.vp, dat[j].vp)) {
 
                 // okay if ( dat[j].vp == -99999, dat[j].vs== -99999 ) and (props[j].cmb.vs == 0, props[j].cmb.vp == 0)
@@ -398,10 +416,11 @@ fprintf(stderr," V|| props << vp(%lf) vs(%lf) rho(%lf) \n", props[0].cmb.vp, pro
                       dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
                       dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs);
                       mcount++;
-                      fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+                      fprintf(dfp,"%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                           tcount,
-                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,dat[j].depth,
-                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,props[j].surf);
+                          dat[j].x,dat[j].y,dat[j].z,dat[j].lon,dat[j].lat,
+                          dat[j].vp,dat[j].vs,props[j].cmb.vp,props[j].cmb.vs,
+                          cvmh_surface, dat[j].depth, ucvm_surface, ucvm_depth);
                  }
                 } else {
                   okcount++;
