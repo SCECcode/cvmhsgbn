@@ -265,7 +265,6 @@ int test_query_points_by_depth()
   /* Save current directory */
   getcwd(currentdir, 1000);
 
-// ge part
   sprintf(infile, "%s/%s", currentdir, "./inputs/test-depth-ucvm.in");
   sprintf(outfile, "%s/%s", currentdir,
           "test-depth-ucvm.out");

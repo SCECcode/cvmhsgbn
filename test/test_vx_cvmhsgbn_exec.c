@@ -214,7 +214,7 @@ int test_vx_cvmhsgbn_points_elevation_cvmhsgbn()
   char reffile[1280];
   char currentdir[1000];
 
-  printf("Test: vx_cvmhsgbn executable with elevation option (cvmhsbn)\n");
+  printf("Test: vx_cvmhsgbn executable with elevation option (cvmhsgbn)\n");
 
   /* Save current directory */
   getcwd(currentdir, 1000);
