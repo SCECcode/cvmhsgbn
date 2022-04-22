@@ -21,7 +21,7 @@
 
 int VX_LITE_TESTS=2;
 
-int test_vx_lite_cvhmlabn_points_elevation()
+int test_vx_lite_cvmhsgbn_points_elevation()
 {
   char infile[1280];
   char outfile[1280];
@@ -60,7 +60,7 @@ int test_vx_lite_cvhmlabn_points_elevation()
 
 
 
-int test_vx_lite_cvhmlabn_points_depth()
+int test_vx_lite_cvmhsgbn_points_depth()
 {
   char infile[1280];
   char outfile[1280];
@@ -104,7 +104,7 @@ int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
   FILE *lf = NULL;
 
   /* Setup test suite */
-  strcpy(suite.suite_name, "suite_vx_lite_cvhmlabn_exec");
+  strcpy(suite.suite_name, "suite_vx_lite_cvmhsgbn_exec");
 
   suite.num_tests = VX_LITE_TESTS;
   suite.tests = malloc(suite.num_tests * sizeof(test_t));
@@ -115,12 +115,12 @@ int suite_vx_lite_cvmhsgbn_exec(const char *xmldir)
   test_get_time(&suite.exec_time);
 
   /* Setup test cases */
-  strcpy(suite.tests[0].test_name, "test_vx_lite_cvhmlabn_points_elevation");
-  suite.tests[0].test_func = &test_vx_lite_cvhmlabn_points_elevation;
+  strcpy(suite.tests[0].test_name, "test_vx_lite_cvmhsgbn_points_elevation");
+  suite.tests[0].test_func = &test_vx_lite_cvmhsgbn_points_elevation;
   suite.tests[0].elapsed_time = 0.0;
 
-  strcpy(suite.tests[1].test_name, "test_vx_lite_cvhmlabn_points_depth");
-  suite.tests[1].test_func = &test_vx_lite_cvhmlabn_points_depth;
+  strcpy(suite.tests[1].test_name, "test_vx_lite_cvmhsgbn_points_depth");
+  suite.tests[1].test_func = &test_vx_lite_cvmhsgbn_points_depth;
   suite.tests[1].elapsed_time = 0.0;
 
   if (test_run_suite(&suite) != 0) {
