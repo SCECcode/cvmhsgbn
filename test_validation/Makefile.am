@@ -3,7 +3,7 @@
 bin_PROGRAMS = cvmhsgbn_api_validate cvmhsgbn_vxlite_validate
 
 # General compiler/linker flags
-AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -O3 -std=c99 -D_LARGEFILE_SOURCE \
+AM_CFLAGS = -DDYNAMIC_LIBRARY -Wall -g -std=c99 -D_LARGEFILE_SOURCE \
         -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -I../src
 AM_LDFLAGS = -L../src -lvxapi_cvmhsgbn -lcvmhsgbn -L../gctpc/source -lgctpc -lm -ldl
 
@@ -18,19 +18,30 @@ all: $(bin_PROGRAMS)
 ############################################
 # Executables
 ############################################
+cvmhsgbn_vxlite_validate.c : cvmhbn_vxlite_validate.c 
+	sed -f cvmhsgbn_sed_cmd cvmhbn_vxlite_validate.c > cvmhsgbn_vxlite_validate.c 
 
 cvmhsgbn_vxlite_validate : cvmhsgbn_vxlite_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
+
+cvmhsgbn_api_validate.c : cvmhbn_api_validate.c 
+	sed -f cvmhsgbn_sed_cmd cvmhbn_api_validate.c > cvmhsgbn_api_validate.c 
 
 cvmhsgbn_api_validate : cvmhsgbn_api_validate.o 
 	$(CC) -o $@ $^ $(AM_LDFLAGS)
 
 if UCVM
+cvmhsgbn_ucvm_validate.c : cvmhbn_ucvm_validate.c 
+	sed -f cvmhsgbn_sed_cmd cvmhbn_ucvm_validate.c > cvmhsgbn_ucvm_validate.c 
+
 cvmhsgbn_ucvm_validate.o : cvmhsgbn_ucvm_validate.c 
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
 
 cvmhsgbn_ucvm_validate : cvmhsgbn_ucvm_validate.o 
 	$(CC) -o $@ $^  $(LDFLAGS) $(AM_LDFLAGS)
+
+cvmhsgbn_ucvm_rerun.c : cvmhbn_ucvm_rerun.c 
+	sed -f cvmhsgbn_sed_cmd cvmhbn_ucvm_rerun.c > cvmhsgbn_ucvm_rerun.c 
 
 cvmhsgbn_ucvm_rerun.o : cvmhsgbn_ucvm_rerun.c 
 	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)

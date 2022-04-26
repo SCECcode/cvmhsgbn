@@ -1,14 +1,14 @@
 /*
- * @file cvmhsgbn_api_validate.c
+ * @file %%cvmhbn%_api_validate.c
  * @brief test with a full set of validation points in depth
  * @author - SCEC
  * @version 1.0
  *
- * Tests the CVMHSGBN library by loading it and use ucvm api as a
+ * Tests the %%CVMHBN% library by loading it and use ucvm api as a
  * UCVM pulgin model
  *
  *
- *  ./cvmhsgbn_api_validate -f validate_vxlite_good.txt
+ *  ./%%cvmhbn%_api_validate -f validate_vxlite_good.txt
  *
  */
 
@@ -19,7 +19,7 @@
 #include <assert.h>
 #include <string.h>
 #include <ucvm_model_dtypes.h>
-#include "cvmhsgbn.h"
+#include "%%cvmhbn%.h"
 
 int validate_debug = 0;
 
@@ -59,7 +59,7 @@ FILE *_process_datfile(char *fname) {
   char dat_line[1028];
   FILE *fp = fopen(fname, "r");
   if (fp == NULL) {
-    fprintf(stderr,"CVMHSGBN_VALIDATE_API: FAIL: Unable to open the validation data file %s\n", fname);
+    fprintf(stderr,"%%CVMHBN%_VALIDATE_API: FAIL: Unable to open the validation data file %s\n", fname);
     exit(1);
   }
 
@@ -68,7 +68,7 @@ FILE *_process_datfile(char *fname) {
   
   /* read the title line */
     if (fgets(dat_line, 1028, fp) == NULL) {
-      fprintf(stderr,"CVMHSGBN_VALIDATE_API: FAIL: Unable to extract validation data file %s\n", fname);
+      fprintf(stderr,"%%CVMHBN%_VALIDATE_API: FAIL: Unable to extract validation data file %s\n", fname);
       fclose(fp);
       exit(1);
     }
@@ -88,7 +88,7 @@ FILE *_process_datfile(char *fname) {
   
     while(p != NULL)
     {
-      if(validate_debug) { printf("CVMHSGBN_VALIDATE_API:'%s'\n", p); }
+      if(validate_debug) { printf("%%CVMHBN%_VALIDATE_API:'%s'\n", p); }
       if(strcmp(p,"id")==0)
         dat_entry.id_idx=counter;
       if(strcmp(p,"X")==0)
@@ -163,8 +163,8 @@ int _compare_double(double f1, double f2) {
 
 /* Usage function */
 void usage() {
-  printf("     cvmhsgbn_api_validate - (c) SCEC\n");
-  printf("\tusage: cvmhsgbn_api_validate [-d] -f file.dat\n\n");
+  printf("     %%cvmhbn%_api_validate - (c) SCEC\n");
+  printf("\tusage: %%cvmhbn%_api_validate [-d] -f file.dat\n\n");
   printf("Flags:\n");
   printf("\t-f point.dat\n\n");
   printf("\t-d enable debug/verbose mode\n\n");
@@ -175,7 +175,7 @@ extern char *optarg;
 extern int optind, opterr, optopt;
 
 /**
- * Initializes CVMHSGBN in standalone mode as ucvm plugin 
+ * Initializes %%CVMHBN% in standalone mode as ucvm plugin 
  * api.
  *
  * @param argc The number of arguments.
@@ -185,8 +185,8 @@ extern int optind, opterr, optopt;
 int main(int argc, char* const argv[]) {
 
 	// Declare the structures.
-	cvmhsgbn_point_t pt;
-	cvmhsgbn_properties_t ret;
+	%%cvmhbn%_point_t pt;
+	%%cvmhbn%_properties_t ret;
         int zmode=UCVM_COORD_GEO_DEPTH;
         int rc;
         int opt;
@@ -213,7 +213,7 @@ int main(int argc, char* const argv[]) {
             } else if (strcasecmp(optarg, "elev") == 0) {
               zmode = UCVM_COORD_GEO_ELEV;
             } else {
-              fprintf(stderr, "CVMHSGBN_VALIDATE_API: Invalid coord type %s", optarg);
+              fprintf(stderr, "%%CVMHBN%_VALIDATE_API: Invalid coord type %s", optarg);
               usage();
               exit(0);
             }
@@ -238,14 +238,14 @@ int main(int argc, char* const argv[]) {
         // try to use Use UCVM_INSTALL_PATH
         char *envstr=getenv("UCVM_INSTALL_PATH");
         if(envstr != NULL) {
-	   assert(cvmhsgbn_init(envstr, "cvmhsgbn") == 0);
+	   assert(%%cvmhbn%_init(envstr, "%%cvmhbn%") == 0);
            } else {
-	     assert(cvmhsgbn_init("..", "cvmhsgbn") == 0);
+	     assert(%%cvmhbn%_init("..", "%%cvmhbn%") == 0);
         }
-	printf("CVMHSGBN_VALIDATE_API: Loaded the model successfully.\n");
+	printf("%%CVMHBN%_VALIDATE_API: Loaded the model successfully.\n");
 
-        assert(cvmhsgbn_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
-	printf("CVMHSGBN_VALIDATE_API: Set model zmode successfully.\n");
+        assert(%%cvmhbn%_setparam(0, UCVM_PARAM_QUERY_MODE, zmode) == 0);
+	printf("%%CVMHBN%_VALIDATE_API: Set model zmode successfully.\n");
 
         rc=_next_datfile(fp, &dat);
         while(rc==0) {
@@ -256,13 +256,13 @@ int main(int argc, char* const argv[]) {
 
               pt.depth = dat.depth;
 
-	      rc=cvmhsgbn_query(&pt, &ret, 1); // rc 0 is okay
+	      rc=%%cvmhbn%_query(&pt, &ret, 1); // rc 0 is okay
 
-              if(validate_debug) {fprintf(stderr, "CVMHSGBN_VALIDATE_API:   with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
+              if(validate_debug) {fprintf(stderr, "%%CVMHBN%_VALIDATE_API:   with.. %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth); }
               if(rc == 0) {
 
                 if(validate_debug) {
-                   fprintf(stderr,"CVMHSGBN_VALIDATE_API:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
+                   fprintf(stderr,"%%CVMHBN%_VALIDATE_API:     vs:%lf vp:%lf rho:%lf\n\n",ret.vs, ret.vp, ret.rho);
                 }
 
                 // is result matching ?
@@ -271,9 +271,9 @@ int main(int argc, char* const argv[]) {
 
 /*** special case.. only in lr
 
-CVMHSGBN_VALIDATE_API:356000.000000,3754000.000000,-100.000114
-CVMHSGBN_VALIDATE_API: dat.vs(-99999.000000),dat.vp(1480.000000)
-CVMHSGBN_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
+%%CVMHBN%_VALIDATE_API:356000.000000,3754000.000000,-100.000114
+%%CVMHBN%_VALIDATE_API: dat.vs(-99999.000000),dat.vp(1480.000000)
+%%CVMHBN%_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
 
 **/
                      // okay if ( dat.vp == -99999, dat.vs== -99999 ) and (ret.vs == -1, ret.vp == -1) 
@@ -282,10 +282,10 @@ CVMHSGBN_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
                        mmcount++;  // just -1 vs -99999
                        fprintf(oofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                        } else {
-                         fprintf(stderr,"\nCVMHSGBN_VALIDATE_API:Mismatching -\n");
-                         fprintf(stderr,"CVMHSGBN_VALIDATE_API:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
-                         fprintf(stderr,"CVMHSGBN_VALIDATE_API: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
-                         fprintf(stderr,"CVMHSGBN_VALIDATE_API:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
+                         fprintf(stderr,"\n%%CVMHBN%_VALIDATE_API:Mismatching -\n");
+                         fprintf(stderr,"%%CVMHBN%_VALIDATE_API:%lf,%lf,%lf\n",dat.x, dat.y, dat.z);
+                         fprintf(stderr,"%%CVMHBN%_VALIDATE_API: dat.vs(%lf),dat.vp(%lf)\n",dat.vs, dat.vp);
+                         fprintf(stderr,"%%CVMHBN%_VALIDATE_API:   ret vs:(%lf) ret vp:(%lf)\n",ret.vs, ret.vp);
                          mcount++;  // real mismatch
                          fprintf(ofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                       }
@@ -294,15 +294,15 @@ CVMHSGBN_VALIDATE_API:   ret vs:(-1.000000) ret vp:(-1.000000)
                          fprintf(oofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,dat.x,dat.y,dat.z,dat.depth,dat.vp,dat.vs);
                   }
                 } else { // rc=1 
-                   if(validate_debug) printf("CVMHSGBN_VALIDATE_API: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
+                   if(validate_debug) printf("%%CVMHBN%_VALIDATE_API: BAD,  %lf %lf %lf\n",pt.longitude, pt.latitude, pt.depth);
               }
           rc=_next_datfile(fp, &dat);
         }
 
-        fprintf(stderr,"CVMHSGBN_VALIDATE_API: %d mismatch out of %d \n", mcount, tcount);
-        fprintf(stderr,"CVMHSGBN_VALIDATE_API: good with matching values(%d) mmcount(%d) \n",okcount, mmcount );
-	assert(cvmhsgbn_finalize() == 0);
-	printf("CVMHSGBN_VALIDATE_API:Model closed successfully.\n");
+        fprintf(stderr,"%%CVMHBN%_VALIDATE_API: %d mismatch out of %d \n", mcount, tcount);
+        fprintf(stderr,"%%CVMHBN%_VALIDATE_API: good with matching values(%d) mmcount(%d) \n",okcount, mmcount );
+	assert(%%cvmhbn%_finalize() == 0);
+	printf("%%CVMHBN%_VALIDATE_API:Model closed successfully.\n");
 
 
         fclose(fp);

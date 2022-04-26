@@ -32,11 +32,11 @@ typedef struct dat_entry_t
   int z_idx;
   int vp_idx;
   int vs_idx;
-  int rho_idx;
 } dat_entry_t;
 
 typedef struct dat_data_t 
 {
+  long id;
   double x;
   double y;
   double z;
@@ -179,8 +179,8 @@ int main(int argc, char* const argv[]) {
         FILE *ofp = fopen("validate_vxlite_bad.txt", "w");
         FILE *oofp = fopen("validate_vxlite_good.txt", "w");
 
-        fprintf(ofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
-        fprintf(oofp,"X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(ofp,"id,X,Y,Z,depth,vp63_basin,vs63_basin\n");
+        fprintf(oofp,"id,X,Y,Z,depth,vp63_basin,vs63_basin\n");
 
         vx_zmode_t zmode=VX_ZMODE_ELEV;
         strcpy(modeldir,".");
@@ -234,6 +234,7 @@ int main(int argc, char* const argv[]) {
               entry.coor[0] = dat.x;
               entry.coor[1] = dat.y;
               entry.coor[2] = dat.z;
+              dat.id=tcount;
 
               /* In case we got anything like degrees */
               if ((entry.coor[0]<360.) && (fabs(entry.coor[1])<90)) {
@@ -270,10 +271,10 @@ CVMHSGBN_VALIDATE_VXLITE:   ret vs:(-1.000000) ret vp:(-1.000000)
                          fprintf(stderr,"CVMHSGBN_VALIDATE_VXLITE:   entry vs:(%lf) entry vp:(%lf)\n",entry.vs, entry.vp);
                          mcount++;  // real mismatch
                       }
-                      fprintf(ofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
+                      fprintf(ofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
                     } else {
                          okcount++;
-                         fprintf(oofp,"%lf,%lf,%lf,%lf,%lf,%lf\n",entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
+                         fprintf(oofp,"%ld,%lf,%lf,%lf,%lf,%lf,%lf\n",dat.id,entry.coor[0],entry.coor[1],entry.coor[2],entry.depth,dat.vp,dat.vs);
                   }
               }
           rc=_next_datfile(fp, &dat);

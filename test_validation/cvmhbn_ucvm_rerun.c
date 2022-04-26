@@ -1,13 +1,13 @@
 /*
- * @file cvmhsgbn_ucvm_rerun.c
- * @brief rerun the failed case from cvmhsgbn_ucvm_validate
+ * @file %%cvmhbn%_ucvm_rerun.c
+ * @brief rerun the failed case from %%cvmhbn%_ucvm_validate
  * @author - SCEC
  * @version 1.0
  *
- * Tests the CVMHSGBN library by running with UCVM
+ * Tests the %%CVMHBN% library by running with UCVM
  *
  *
- *  ./cvmhsgbn_ucvm_rerun -e -c ucvm.conf -f validate_ucvm_bad.txt
+ *  ./%%cvmhbn%_ucvm_rerun -e -c ucvm.conf -f validate_ucvm_bad.txt
  *
  *  test mode: query-by-depth with lat lon depth
  */
@@ -21,7 +21,7 @@
 #include "ucvm.h"
 #include "ucvm_utils.h"
 
-#include "cvmhsgbn.h"
+#include "%%cvmhbn%.h"
 
 #define NUM_POINTS 10000
 
@@ -200,19 +200,19 @@ int _compare_double(double f1, double f2) {
 }
 
 /*********************************************/
-//USE cvmhsgbn_query to process points with negative depth
+//USE %%cvmhbn%_query to process points with negative depth
 void try_again(dat_data_t *dat, FILE *bfp, FILE *gfp, int* mcount, int* mmcount, int* okcount) {
 
-    cvmhsgbn_point_t pt;
-    cvmhsgbn_properties_t ret;
+    %%cvmhbn%_point_t pt;
+    %%cvmhbn%_properties_t ret;
 
     ucvm_ctype_t cmode=UCVM_COORD_GEO_DEPTH;
 
     char *envstr=getenv("UCVM_INSTALL_PATH");
     if(envstr != NULL) {
-      assert(model_init(envstr, "cvmhsgbn")==0);
+      assert(model_init(envstr, "%%cvmhbn%")==0);
       } else {
-        assert(model_init("..", "cvmhsgbn")==0);
+        assert(model_init("..", "%%cvmhbn%")==0);
     }
       
     assert(model_setparam(0, UCVM_PARAM_QUERY_MODE, cmode)==0);
@@ -258,8 +258,8 @@ fprintf(stderr, "XXX ucvm_depth %lf  depth %lf\n", dat->ucvm_depth, dat->depth);
 
 /* Usage function */
 void usage() {
-  printf("     cvmhsgbn_ucvm_rerun - (c) SCEC\n");
-  printf("\tusage: cvmhsgbn_ucvm_rerun [-d] -c ucvm.conf -f file.dat\n\n");
+  printf("     %%cvmhbn%_ucvm_rerun - (c) SCEC\n");
+  printf("\tusage: %%cvmhbn%_ucvm_rerun [-d] -c ucvm.conf -f file.dat\n\n");
   printf("Flags:\n");
   printf("\t-c ucvm.conf\n\n");
   printf("\t-f point.dat\n\n");
@@ -333,8 +333,8 @@ int main(int argc, char* const argv[]) {
   }
 
   /* Add models */
-  if (ucvm_add_model_list("cvmhsgbn") != UCVM_CODE_SUCCESS) {
-    fprintf(stderr, "Failed to enable model list: cvmhsgbn\n");
+  if (ucvm_add_model_list("%%cvmhbn%") != UCVM_CODE_SUCCESS) {
+    fprintf(stderr, "Failed to enable model list: %%cvmhbn%\n");
     return(1);
   }
 

@@ -1,13 +1,13 @@
 /*
- * @file cvmhsgbn_ucvm_validate.c
+ * @file %%cvmhbn%_ucvm_validate.c
  * @brief test with a full set of validation points in depth
  * @author - SCEC
  * @version 1.0
  *
- * Tests the CVMHSGBN library by running with UCVM
+ * Tests the %%CVMHBN% library by running with UCVM
  *
  *
- *  ./cvmhsgbn_ucvm_validate -e -c ucvm.conf -f validate_api_good.txt
+ *  ./%%cvmhbn%_ucvm_validate -e -c ucvm.conf -f validate_api_good.txt
  *
  *  test mode: query-by-depth
  */
@@ -21,7 +21,7 @@
 #include "ucvm.h"
 #include "ucvm_utils.h"
 
-#include "cvmhsgbn.h"
+#include "%%cvmhbn%.h"
 
 #define NUM_POINTS 10000
 
@@ -216,8 +216,8 @@ int _compare_double(double f1, double f2) {
 
 /* Usage function */
 void usage() {
-  printf("     cvmhsgbn_ucvm_validate - (c) SCEC\n");
-  printf("\tusage: cvmhsgbn_ucvm_validate [-d] -c ucvm.conf -f file.dat\n\n");
+  printf("     %%cvmhbn%_ucvm_validate - (c) SCEC\n");
+  printf("\tusage: %%cvmhbn%_ucvm_validate [-d] -c ucvm.conf -f file.dat\n\n");
   printf("Flags:\n");
   printf("\t-c ucvm.conf\n\n");
   printf("\t-f point.dat\n\n");
@@ -295,8 +295,8 @@ int main(int argc, char* const argv[]) {
         }
 
         /* Add models */
-        if (ucvm_add_model_list("cvmhsgbn") != UCVM_CODE_SUCCESS) {
-          fprintf(stderr, "Failed to enable model list: cvmhsgbn\n");
+        if (ucvm_add_model_list("%%cvmhbn%") != UCVM_CODE_SUCCESS) {
+          fprintf(stderr, "Failed to enable model list: %%cvmhbn%\n");
           return(1);
         }
 
