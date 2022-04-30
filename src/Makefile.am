@@ -74,5 +74,4 @@ vx_cvmhsgbn : vx_cvmhsgbn.o libcvmhsgbn.a
 clean:
 	rm -rf $(TARGETS)
 	rm -rf *.o 
-	rm -rf cvmhsgbn.h cvmhsgbn.c vx_lite_cvmhsgbn.c vx_cvmhsgbn.c vx_sub_cvmhsgbn.c
-
+	rm -rf cvmhsgbn.h cvmhsgbn.c vx_lite_cvmhsgbn.c vx_cvmhsgbn.c vx_sub_cvmhsgbn.c vx_sub_cvmhsgbn.h
