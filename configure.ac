@@ -31,8 +31,18 @@ UCVM_CFLAGS=
 UCVM_LDFLAGS=
 else
 AM_CONDITIONAL(UCVM, true)
+
+## special case, check for cvmh, cencal
+AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cvmh/include/vx_sub.h],
+  [CVMH_LDFLAGS="-L$UCVM_INSTALL_PATH/model/cvmh/lib -lvxapi -L$UCVM_INSTALL_PATH/model/cvmh/lib -lgeo"],
+  [CVMH_LDFLAGS=""])
+
+AC_CHECK_FILE([$UCVM_INSTALL_PATH/model/cencal/include/cencal.h],
+  [CENCAL_LDFLAGS="-L$UCVM_INSTALL_PATH/model/cencal/lib -lcencal"],
+  [CENCAL_LDFLAGS=""])
+
 UCVM_CFLAGS="-I$UCVM_INSTALL_PATH/include"
-UCVM_LDFLAGS="-L$UCVM_INSTALL_PATH/lib -lucvm -dynamic  -L$UCVM_INSTALL_PATH/lib/euclid3/lib -letree -L$UCVM_INSTALL_PATH/lib/proj-5/lib -lproj -lpthread -L$UCVM_INSTALL_PATH/lib/fftw/lib -lfftw3"
+UCVM_LDFLAGS="-L$UCVM_INSTALL_PATH/lib -lucvm $CVMH_LDFLAGS $CENCAL_LDFLAGS -dynamic  -L$UCVM_INSTALL_PATH/lib/euclid3/lib -letree -L$UCVM_INSTALL_PATH/lib/proj-5/lib -lproj -lpthread -L$UCVM_INSTALL_PATH/lib/fftw/lib -lfftw3 -m -ldl"
 fi
 
 # Set final CFLAGS and LDFLAGS
