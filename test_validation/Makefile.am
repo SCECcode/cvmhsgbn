@@ -34,29 +34,41 @@ cvmhsgbn_api_validate : cvmhsgbn_api_validate.o
 if UCVM
 cvmhsgbn_ucvm_validate.c : ../cvmhbn/test_validation/cvmhbn_ucvm_validate.c
 	sed -f ../cvmhbn/setup/cvmhsgbn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_validate.c > cvmhsgbn_ucvm_validate.c
+	$(call getLDFLAGS)
+
 cvmhsgbn_ucvm_rerun.c : ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c
 	sed -f ../cvmhbn/setup/cvmhsgbn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_rerun.c > cvmhsgbn_ucvm_rerun.c
+	$(call getLDFLAGS)
 
 cvmhsgbn_ucvm_retry.c : ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c
 	sed -f ../cvmhbn/setup/cvmhsgbn_sed_cmd ../cvmhbn/test_validation/cvmhbn_ucvm_retry.c > cvmhsgbn_ucvm_retry.c
+	$(call getLDFLAGS)
 
 cvmhsgbn_ucvm_validate.o : cvmhsgbn_ucvm_validate.c
-	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
+	$(CC) -c -o $@ $^ $(UCVM_CFLAGS) $(AM_CFLAGS) $(CFLAGS)
 
 cvmhsgbn_ucvm_validate : cvmhsgbn_ucvm_validate.o 
-	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
+	$(CC) -o $@ $^ $(UCVM_LDFLAGS) $(AM_LDFLAGS)
 
 cvmhsgbn_ucvm_rerun.o : cvmhsgbn_ucvm_rerun.c
-	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
+	$(CC) -c -o $@ $^ $(UCVM_CFLAGS) $(AM_CFLAGS) $(CFLAGS)
 
 cvmhsgbn_ucvm_rerun : cvmhsgbn_ucvm_rerun.o 
-	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
+	$(CC) -o $@ $^ $(UCVM_LDFLAGS) $(AM_LDFLAGS)
 
 cvmhsgbn_ucvm_retry.o : cvmhsgbn_ucvm_retry.c
-	$(CC) -c -o $@ $^ $(AM_CFLAGS) $(CFLAGS)
+	$(CC) -c -o $@ $^ $(UCVM_CFLAGS) $(AM_CFLAGS) $(CFLAGS)
 
 cvmhsgbn_ucvm_retry : cvmhsgbn_ucvm_retry.o 
-	$(CC) -o $@ $^ $(LDFLAGS) $(AM_LDFLAGS)
+	$(CC) -o $@ $^ $(UCVM_LDFLAGS) $(AM_LDFLAGS)
+
+define getLDFLAGS =
+    if [ -f '$(UCVM_INSTALL_PATH)/model/cvmh/include/vx_sub.h' ]; then
+        UCVM_LDFLAGS = -L$(UCVM_INSTALL_PATH)/lib -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lvxapi -L$(UCVM_INSTALL_PATH)/model/cvmh/lib -lgeo -lucvm -dynamic  -L$(UCVM_INSTALL_PATH)/lib/euclid3/lib -letree -L$(UCVM_INSTALL_PATH)/lib/proj-5/lib -lproj -lpthread -L$(UCVM_INSTALL_PATH)/lib/fftw/lib -lfftw3 -lm -ldl
+    fi
+    UCVM_CFLAGS= -I$(UCVM_INSTALL_PATH)/include
+endef
+
 endif
 
 ############################################
